@@ -5,205 +5,120 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>WMS Layout Bodega Pro · Lahional Ávila</title>
 <style>
-:root{
-  --bg:#0b1220;--panel:#121c2f;--panel2:#0e1729;--line:#22304a;
-  --txt:#e8eefb;--muted:#8fa3c0;--accent:#3b82f6;--danger:#ef4444;--ok:#22c55e;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  background:var(--bg);color:var(--txt);overflow:hidden;font-size:13px}
+:root{--bg:#0b1220;--panel:#121c2f;--panel2:#0e1729;--line:#22304a;--txt:#e8eefb;--muted:#8fa3c0;--accent:#3b82f6;--danger:#ef4444;--ok:#22c55e;--warn:#f59e0b}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);overflow:hidden;font-size:13px}
 .app{display:flex;flex-direction:column;height:100vh}
-.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;
-  padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);position:relative;z-index:10}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);position:relative;z-index:10}
 .group{display:flex;gap:6px;align-items:center;padding-right:10px;border-right:1px solid var(--line)}
 .group:last-child{border-right:none;padding-right:0}
-button{font:inherit;color:var(--txt);background:#1b2942;border:1px solid var(--line);
-  padding:6px 10px;border-radius:8px;cursor:pointer;transition:.12s;white-space:nowrap}
+button{font:inherit;color:var(--txt);background:#1b2942;border:1px solid var(--line);padding:6px 10px;border-radius:8px;cursor:pointer;transition:.12s;white-space:nowrap}
 button:hover{background:#24385c;border-color:#33507f}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 button.primary:hover{background:#2f6fd6}
 button.danger{background:#3a1520;border-color:#6b2233;color:#ffb4c0}
 button.active{background:var(--accent);border-color:var(--accent);color:#fff}
 button.small{padding:4px 8px;font-size:11px}
-.copyright-inline{margin-left:auto;padding:4px 12px;font-size:9.5px;color:rgba(255,255,255,.48);
-  letter-spacing:.35px;user-select:none;pointer-events:none;white-space:nowrap;
-  font-family:system-ui,sans-serif;background:rgba(255,255,255,.05);border-radius:6px;
-  border:1px solid rgba(255,255,255,.07);display:flex;align-items:center}
+.copyright-inline{margin-left:auto;padding:4px 12px;font-size:9.5px;color:rgba(255,255,255,.48);letter-spacing:.35px;user-select:none;pointer-events:none;white-space:nowrap;background:rgba(255,255,255,.05);border-radius:6px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center}
 .copyright-inline b{color:rgba(255,255,255,.65);font-weight:600;margin-right:4px}
 .mode-2d-hidden{display:none !important}
 .mode-3d-hidden{display:none !important}
-.floating-controls{position:absolute;top:50%;transform:translateY(-50%);
-  display:flex;flex-direction:column;gap:6px;z-index:250;pointer-events:none}
-.floating-left{left:6px}
-.floating-right{right:6px}
-.floating-controls button{pointer-events:auto;width:34px;height:34px;padding:0;border-radius:50%;
-  background:rgba(18,28,47,.93);border:1px solid var(--line);color:var(--txt);
-  font-size:14px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.45);transition:.15s}
+.floating-controls{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:250;pointer-events:none}
+.floating-left{left:6px}.floating-right{right:6px}
+.floating-controls button{pointer-events:auto;width:34px;height:34px;padding:0;border-radius:50%;background:rgba(18,28,47,.93);border:1px solid var(--line);color:var(--txt);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.45);transition:.15s}
 .floating-controls button:hover{background:rgba(36,56,92,.96);border-color:var(--accent);transform:scale(1.08)}
 .main{flex:1;display:flex;min-height:0;position:relative}
-.library{width:255px;flex:0 0 255px;background:var(--panel);border-right:1px solid var(--line);
-  display:flex;flex-direction:column;overflow:hidden;transition:margin-left .25s}
+.library{width:255px;flex:0 0 255px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;transition:margin-left .25s}
 .library.hidden{margin-left:-255px}
 .library-head{padding:10px;border-bottom:1px solid var(--line)}
 .library-head h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.search{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
-  background:var(--panel2);color:var(--txt);font:inherit}
+.search{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit}
 .library-list{flex:1;overflow-y:auto;padding:8px}
 .category{margin-bottom:10px}
-.category h4{margin:0 0 6px;padding:4px 8px;font-size:10px;text-transform:uppercase;
-  letter-spacing:.08em;color:var(--muted);background:#16233b;border-radius:6px}
+.category h4{margin:0 0 6px;padding:4px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:#16233b;border-radius:6px}
 .items{display:grid;grid-template-columns:1fr 1fr;gap:4px}
-.item{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:6px 3px;border-radius:7px;background:var(--panel2);
-  border:1px solid var(--line);cursor:pointer;transition:.12s;text-align:center;
-  font-size:10px;line-height:1.15;color:#c9d5e8}
+.item{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 3px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);cursor:pointer;transition:.12s;text-align:center;font-size:10px;line-height:1.15;color:#c9d5e8}
 .item:hover{background:#1e3355;border-color:var(--accent);color:#fff}
 .item .ico{font-size:18px;line-height:1;margin-bottom:2px}
-
-/* ===== VISOR 2D - ESTILO CAD ===== */
-.viewer{flex:1;position:relative;overflow:hidden;
-  background:radial-gradient(circle at 30% 10%,#16233b 0%,var(--bg) 65%)}
+.viewer{flex:1;position:relative;overflow:hidden;background:radial-gradient(circle at 30% 10%,#16233b 0%,var(--bg) 65%)}
 .view{position:absolute;inset:0;overflow:hidden}
 .view.hidden{display:none}
 .view-3d{overflow:hidden !important}
 #canvas3d{display:block;width:100%;height:100%;cursor:grab}
 #canvas3d:active{cursor:grabbing}
 #canvas3d.fps-active{cursor:crosshair}
-
 .stage-wrap{position:absolute;inset:0;overflow:hidden;cursor:default}
 .stage-wrap.pan-mode{cursor:grab}
 .stage-wrap.pan-mode:active{cursor:grabbing}
 .zoombox{position:absolute;inset:0;pointer-events:none}
-.stage{position:absolute;width:1123px;height:794px;background:#fff;
-  background-image:
-    linear-gradient(to right,#eef2f8 1px,transparent 1px),
-    linear-gradient(to bottom,#eef2f8 1px,transparent 1px),
-    linear-gradient(to right,#d9e2ef 1px,transparent 1px),
-    linear-gradient(to bottom,#d9e2ef 1px,transparent 1px);
-  background-size:20px 20px,20px 20px,100px 100px,100px 100px;
-  transform-origin:center center;border-radius:4px;overflow:hidden;
-  box-shadow:0 18px 50px rgba(0,0,0,.55);touch-action:none;pointer-events:auto;
-  will-change:transform,left,top;}
-
+.stage{position:absolute;width:1123px;height:794px;background:#fff;background-image:linear-gradient(to right,#eef2f8 1px,transparent 1px),linear-gradient(to bottom,#eef2f8 1px,transparent 1px),linear-gradient(to right,#d9e2ef 1px,transparent 1px),linear-gradient(to bottom,#d9e2ef 1px,transparent 1px);background-size:20px 20px,20px 20px,100px 100px,100px 100px;transform-origin:center center;border-radius:4px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.55);touch-action:none;pointer-events:auto;will-change:transform,left,top}
 .sectors-layer{position:absolute;inset:0;pointer-events:none;z-index:5}
 .sector-line{position:absolute;background:#64748b;opacity:.3}
 .sector-v{top:0;bottom:0;width:1px}
 .sector-h{left:0;right:0;height:1px}
-.sector-label{position:absolute;font-size:9px;font-weight:800;color:#334155;
-  padding:1px 5px;background:rgba(255,255,255,.85);border-radius:3px;border:1px solid #cbd5e1;
-  transform:translate(-50%,-50%);white-space:nowrap;opacity:.75}
-.sector-tint{position:absolute;background:repeating-linear-gradient(45deg,
-  transparent,transparent 6px,rgba(59,130,246,.12) 6px,rgba(59,130,246,.12) 12px);
-  border:1px solid rgba(59,130,246,.25);pointer-events:none}
-
-.elem{position:absolute;display:flex;align-items:center;justify-content:center;
-  border:1.5px solid #334155;background:#f8fafc;border-radius:4px;
-  font-size:8px;font-weight:700;color:#0f172a;text-align:center;
-  padding:1px 2px;overflow:hidden;cursor:move;user-select:none;line-height:1.05;z-index:10}
+.sector-label{position:absolute;font-size:9px;font-weight:800;color:#334155;padding:1px 5px;background:rgba(255,255,255,.85);border-radius:3px;border:1px solid #cbd5e1;transform:translate(-50%,-50%);white-space:nowrap;opacity:.75}
+.sector-tint{position:absolute;background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(59,130,246,.12) 6px,rgba(59,130,246,.12) 12px);border:1px solid rgba(59,130,246,.25);pointer-events:none}
+.elem{position:absolute;display:flex;align-items:center;justify-content:center;border:1.5px solid #334155;background:#f8fafc;border-radius:4px;font-size:8px;font-weight:700;color:#0f172a;text-align:center;padding:1px 2px;overflow:hidden;cursor:move;user-select:none;line-height:1.05;z-index:10;transition:box-shadow .2s}
 .elem .ico{position:absolute;top:0;left:2px;font-size:9px;opacity:.8;pointer-events:none}
 .elem .lbl{pointer-events:none;word-break:break-word;padding:0 1px}
 .elem.selected{outline:2px dashed var(--accent);outline-offset:1px;z-index:50}
-.elem .handle{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;
-  background:var(--accent);border:2px solid #fff;border-radius:2px;
-  cursor:nwse-resize;display:none;z-index:2}
-.elem .del{position:absolute;right:-7px;top:-7px;width:16px;height:16px;
-  border-radius:50%;background:var(--danger);color:#fff;border:2px solid #fff;
-  font-size:10px;line-height:1;cursor:pointer;display:none;
-  align-items:center;justify-content:center;padding:0;font-weight:700;z-index:2}
+.elem .handle{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;background:var(--accent);border:2px solid #fff;border-radius:2px;cursor:nwse-resize;display:none;z-index:2}
+.elem .del{position:absolute;right:-7px;top:-7px;width:16px;height:16px;border-radius:50%;background:var(--danger);color:#fff;border:2px solid #fff;font-size:10px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0;font-weight:700;z-index:2}
 .elem.selected .handle{display:block}
 .elem.selected .del{display:flex}
-
-.cajetin{position:absolute;right:10px;bottom:10px;width:310px;z-index:1000;
-  background:#fff;border:2px solid #0f172a;border-radius:3px;padding:6px 8px;
-  pointer-events:none;font-family:system-ui,sans-serif}
-.cj-title{font-size:11px;font-weight:800;color:#0f172a;letter-spacing:.2px;
-  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Alerta vencimiento */
+.elem.expired{border-color:#ef4444 !important;animation:pulseExpired 1.4s infinite}
+.elem.warning{border-color:#f59e0b !important}
+@keyframes pulseExpired{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.75)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+.alert-badge{position:absolute;top:-8px;left:-8px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;border:2px solid #fff;z-index:3;pointer-events:none;font-family:system-ui,sans-serif}
+.alert-badge.expired{background:#ef4444;animation:pulseBadge 1s infinite}
+.alert-badge.warning{background:#f59e0b}
+@keyframes pulseBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.cajetin{position:absolute;right:10px;bottom:10px;width:310px;z-index:1000;background:#fff;border:2px solid #0f172a;border-radius:3px;padding:6px 8px;pointer-events:none;font-family:system-ui,sans-serif}
+.cj-title{font-size:11px;font-weight:800;color:#0f172a;letter-spacing:.2px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cj-row{display:flex;justify-content:space-between;font-size:8px;color:#475569;margin-top:2px;align-items:center}
 .cj-badge{background:#1e40af;color:#fff;padding:0 5px;border-radius:2px;font-weight:700;font-size:8px}
 .cj-author{font-size:7px;color:#64748b;margin-top:3px;text-align:right;font-style:italic}
 .print-watermark{display:none}
-@media print{
-  .print-watermark{display:block;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
-    font-size:7px;color:rgba(0,0,0,.22);letter-spacing:.5px;pointer-events:none;
-    z-index:10000;font-family:system-ui,sans-serif;}
-}
-
-.minimap{position:absolute;top:10px;right:10px;z-index:200;
-  background:rgba(18,28,47,.94);border:1px solid var(--line);
-  border-radius:8px;padding:6px;box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+@media print{.print-watermark{display:block;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:7px;color:rgba(0,0,0,.22);letter-spacing:.5px;pointer-events:none;z-index:10000;font-family:system-ui,sans-serif}}
+.minimap{position:absolute;top:10px;right:10px;z-index:200;background:rgba(18,28,47,.94);border:1px solid var(--line);border-radius:8px;padding:6px;box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
 .minimap h5{margin:0 0 4px;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .mini-grid{display:grid;gap:1px;background:#1e293b;border-radius:3px;overflow:hidden;width:120px}
-.mini-cell{background:#0f172a;display:flex;align-items:center;justify-content:center;
-  font-size:7px;color:#64748b;font-weight:700;height:20px;transition:.12s;cursor:pointer}
+.mini-cell{background:#0f172a;display:flex;align-items:center;justify-content:center;font-size:7px;color:#64748b;font-weight:700;height:20px;transition:.12s;cursor:pointer}
 .mini-cell.active{background:repeating-linear-gradient(45deg,#1e40af,#1e40af 2px,#2563eb 4px,#2563eb 6px);color:#fff}
-
-.compass{position:absolute;top:10px;left:10px;z-index:200;
-  background:rgba(18,28,47,.94);border:1px solid var(--line);border-radius:50%;
-  width:54px;height:54px;display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(4px);color:#e2e8f0;font-size:8px;font-weight:800;
-  transition:transform .25s ease}
+.compass{position:absolute;top:10px;left:10px;z-index:200;background:rgba(18,28,47,.94);border:1px solid var(--line);border-radius:50%;width:54px;height:54px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);color:#e2e8f0;font-size:8px;font-weight:800;transition:transform .25s ease}
 .compass .arrow{font-size:18px;color:#ef4444;line-height:1}
 .compass .n,.compass .s{position:absolute}
 .compass .n{top:1px;font-size:9px;color:#ef4444;font-weight:800}
 .compass .s{bottom:1px;font-size:9px;color:#94a3b8;font-weight:700}
-
-.floors-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
-  display:flex;gap:3px;background:rgba(18,28,47,.94);padding:4px;border-radius:8px;
-  border:1px solid var(--line);z-index:150;backdrop-filter:blur(4px);align-items:center}
+.floors-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:3px;background:rgba(18,28,47,.94);padding:4px;border-radius:8px;border:1px solid var(--line);z-index:150;backdrop-filter:blur(4px);align-items:center}
 .floors-bar button{padding:4px 10px;font-size:11px;border-radius:5px}
 .floors-bar button.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .floors-bar .floor-mgr{padding:4px 8px;font-size:11px;background:#374151;border-color:#4b5563}
-
-.pan-nav{position:absolute;bottom:10px;left:10px;z-index:220;
-  display:none;grid-template-columns:repeat(3,32px);grid-template-rows:repeat(3,32px);gap:3px;
-  background:rgba(18,28,47,.94);padding:5px;border-radius:8px;
-  border:1px solid var(--line);backdrop-filter:blur(4px)}
+.pan-nav{position:absolute;bottom:10px;left:10px;z-index:220;display:none;grid-template-columns:repeat(3,32px);grid-template-rows:repeat(3,32px);gap:3px;background:rgba(18,28,47,.94);padding:5px;border-radius:8px;border:1px solid var(--line);backdrop-filter:blur(4px)}
 .pan-nav.visible{display:grid}
 .pan-nav button{width:32px;height:32px;padding:0;font-size:13px;border-radius:5px}
 .pan-nav .home{grid-column:2;grid-row:2;background:#1e40af;border-color:#1e40af;color:#fff}
-
-.sector-nav{position:absolute;bottom:10px;right:10px;z-index:220;
-  background:rgba(18,28,47,.94);padding:6px;border-radius:8px;
-  border:1px solid var(--line);backdrop-filter:blur(4px);
-  display:none;max-height:180px;overflow-y:auto;min-width:70px}
+.sector-nav{position:absolute;bottom:10px;right:10px;z-index:220;background:rgba(18,28,47,.94);padding:6px;border-radius:8px;border:1px solid var(--line);backdrop-filter:blur(4px);display:none;max-height:180px;overflow-y:auto;min-width:70px}
 .sector-nav.visible{display:block}
-.sector-nav h5{margin:0 0 4px;font-size:8px;color:var(--muted);text-transform:uppercase;
-  letter-spacing:.06em;text-align:center}
+.sector-nav h5{margin:0 0 4px;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center}
 .sector-nav button{display:block;width:100%;padding:3px 8px;font-size:10px;margin-bottom:3px;text-align:center}
-
 .routes-svg{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:visible}
 .routes-svg .path{fill:none;stroke:#f59e0b;stroke-width:2.5;stroke-dasharray:5 3}
 .routes-svg .wp{fill:#f59e0b;stroke:#fff;stroke-width:1.5}
 .routes-svg .walker{fill:#ef4444;stroke:#fff;stroke-width:1.5;filter:drop-shadow(0 0 3px #ef4444)}
-
-.route-info{position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
-  background:rgba(18,28,47,.96);border:1px solid #f59e0b;border-radius:8px;
-  padding:6px 10px;font-size:11px;color:#fbbf24;z-index:300;
-  display:none;backdrop-filter:blur(4px);white-space:nowrap;
-  box-shadow:0 6px 20px rgba(0,0,0,.5);align-items:center;gap:8px}
+.route-info{position:absolute;bottom:56px;left:50%;transform:translateX(-50%);background:rgba(18,28,47,.96);border:1px solid #f59e0b;border-radius:8px;padding:6px 10px;font-size:11px;color:#fbbf24;z-index:300;display:none;backdrop-filter:blur(4px);white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.5);align-items:center;gap:8px}
 .route-info.open{display:flex}
 .route-info b{color:#fff}
 .route-info button{padding:2px 6px;font-size:10px;background:#7f1d1d;border-color:#991b1b;color:#fff}
-
-.fps-hint{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.75);color:#fff;padding:10px 18px;border-radius:10px;
-  font-size:12px;z-index:400;display:none;backdrop-filter:blur(6px);
-  border:1px solid rgba(255,255,255,.15);pointer-events:none;text-align:center}
+.fps-hint{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 18px;border-radius:10px;font-size:12px;z-index:400;display:none;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.15);pointer-events:none;text-align:center}
 .fps-hint.open{display:block}
-.fps-hint kbd{background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;
-  font-family:monospace;font-size:11px;margin:0 2px}
-
-.props{width:280px;flex:0 0 280px;background:var(--panel);border-left:1px solid var(--line);
-  padding:10px;overflow-y:auto;transition:margin-right .25s}
+.fps-hint kbd{background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11px;margin:0 2px}
+.props{width:280px;flex:0 0 280px;background:var(--panel);border-left:1px solid var(--line);padding:10px;overflow-y:auto;transition:margin-right .25s}
 .props.hidden{margin-right:-280px}
 .props h3{margin:0 0 8px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .props label{display:block;margin-bottom:6px;color:var(--muted);font-size:10px}
-.props input[type=text],.props input[type=number],.props input[type=password],
-.props select,.props textarea,.props input[type=color]{
-  width:100%;margin-top:2px;padding:5px 7px;border-radius:6px;
-  border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit;font-size:12px}
+.props input[type=text],.props input[type=number],.props input[type=password],.props input[type=date],.props select,.props textarea,.props input[type=color]{width:100%;margin-top:2px;padding:5px 7px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit;font-size:12px}
 .props input[type=color]{padding:2px;height:28px;cursor:pointer}
 .props .row{display:flex;gap:5px}
 .props .row>label{flex:1}
@@ -211,56 +126,39 @@ button.small{padding:4px 8px;font-size:11px}
 .props .empty{color:#5f7392;font-size:11px;font-style:italic}
 .props button{width:100%;margin-top:3px}
 .props .info{font-size:9px;color:#7d90ad;line-height:1.5}
-.props .kbd{display:inline-block;background:#1e293b;border:1px solid #334155;padding:0 4px;
-  border-radius:3px;font-family:monospace;font-size:9px;margin:0 1px}
-
-.analysis-box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
-  padding:8px;margin-top:6px;font-size:10px}
+.props .kbd{display:inline-block;background:#1e293b;border:1px solid #334155;padding:0 4px;border-radius:3px;font-family:monospace;font-size:9px;margin:0 1px}
+.props h4.section{font-size:10px;text-transform:uppercase;color:var(--muted);margin:8px 0 6px;letter-spacing:.06em}
+.analysis-box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:6px;font-size:10px}
 .analysis-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #1e293b}
 .analysis-row:last-child{border:none}
 .analysis-val{font-weight:700;color:#93c5fd}
-
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;
-  display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .modal-bg.open{display:flex}
-.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-  width:min(560px,92vw);max-height:88vh;display:flex;flex-direction:column;
-  box-shadow:0 24px 60px rgba(0,0,0,.7)}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:min(560px,92vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.7)}
 .modal.wide{width:min(900px,94vw)}
-.modal-head{display:flex;justify-content:space-between;align-items:center;
-  padding:12px 16px;border-bottom:1px solid var(--line)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
 .modal-head h3{margin:0;font-size:14px}
 .modal-body{padding:14px 16px;overflow-y:auto;flex:1;font-size:12px;line-height:1.6}
 .modal-body label{display:block;margin-bottom:8px;color:var(--muted);font-size:11px}
-.modal-body input[type=text],.modal-body input[type=password]{
-  width:100%;margin-top:3px;padding:7px 10px;border-radius:8px;
-  border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit;font-size:12px}
+.modal-body input[type=text],.modal-body input[type=password]{width:100%;margin-top:3px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit;font-size:12px}
 .modal-body .hint{font-size:10px;color:#7d90ad;margin-top:3px}
 .modal-foot{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
-.modal-body .resp{background:#0e1729;border:1px solid var(--line);border-radius:8px;
-  padding:10px;white-space:pre-wrap;margin-top:10px;font-size:11px;line-height:1.6;
-  max-height:320px;overflow-y:auto}
+.modal-body .resp{background:#0e1729;border:1px solid var(--line);border-radius:8px;padding:10px;white-space:pre-wrap;margin-top:10px;font-size:11px;line-height:1.6;max-height:320px;overflow-y:auto}
 .modal-body .status{padding:6px 10px;border-radius:6px;font-size:11px;margin-top:8px}
 .status.ok{background:#14532d;color:#86efac}
 .status.bad{background:#7f1d1d;color:#fecaca}
 .status.warn{background:#78350f;color:#fde68a}
-
 .ia-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
 .ia-buttons button{width:100%;margin:0;padding:8px;font-size:11px;background:#1e3355;border-color:#334155}
 .ia-buttons button:hover{background:#2a4a7a;border-color:var(--accent)}
-
 .print-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
-.print-options button{padding:20px 10px;font-size:13px;background:#1e3355;border-color:#334155;
-  display:flex;flex-direction:column;align-items:center;gap:6px}
+.print-options button{padding:20px 10px;font-size:13px;background:#1e3355;border-color:#334155;display:flex;flex-direction:column;align-items:center;gap:6px}
 .print-options button:hover{background:#2a4a7a;border-color:var(--accent)}
 .print-options .big-ico{font-size:30px}
-
 .floor-manager-row{display:flex;align-items:center;gap:6px;padding:8px;border-bottom:1px solid var(--line)}
 .floor-manager-row span{flex:1;font-size:12px}
 .floor-manager-row button{padding:3px 8px;font-size:10px}
-
-.guide-nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;
-  border-bottom:1px solid var(--line);padding-bottom:8px}
+.guide-nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--line);padding-bottom:8px}
 .guide-nav button{font-size:11px;padding:5px 10px}
 .guide-nav button.active{background:var(--accent);border-color:var(--accent)}
 .guide-content{display:none}
@@ -269,34 +167,46 @@ button.small{padding:4px 8px;font-size:11px}
 .guide-content p{margin:0 0 8px;font-size:12px;line-height:1.6;color:#c9d5e8}
 .guide-content ul{padding-left:20px;margin:6px 0 10px}
 .guide-content li{margin-bottom:4px;font-size:12px;color:#c9d5e8}
-.guide-content code{background:#0e1729;padding:1px 5px;border-radius:3px;
-  font-family:monospace;font-size:11px;color:#93c5fd;border:1px solid var(--line)}
-.guide-content .kbd-tip{background:#0e1729;border-left:3px solid var(--accent);
-  padding:8px 12px;border-radius:4px;margin:8px 0;font-size:11px;color:#93c5fd}
-
-.sim-panel{position:absolute;top:70px;left:10px;z-index:180;width:250px;
-  background:rgba(18,28,47,.96);border:1px solid var(--line);border-radius:10px;
-  padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;backdrop-filter:blur(6px)}
+.guide-content code{background:#0e1729;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;color:#93c5fd;border:1px solid var(--line)}
+.guide-content .kbd-tip{background:#0e1729;border-left:3px solid var(--accent);padding:8px 12px;border-radius:4px;margin:8px 0;font-size:11px;color:#93c5fd}
+/* Alertas modal */
+.alert-item{display:flex;gap:10px;padding:10px;background:#0e1729;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;align-items:center}
+.alert-item.expired{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.alert-item.warning{border-color:#f59e0b;background:rgba(245,158,11,.08)}
+.alert-icon{font-size:22px;flex-shrink:0}
+.alert-info{flex:1;font-size:11px;line-height:1.4}
+.alert-name{font-weight:700;color:var(--txt);font-size:12px}
+.alert-floor{color:var(--muted);font-size:10px}
+.alert-date{font-weight:600;margin-top:2px}
+.alert-item.expired .alert-date{color:#fca5a5}
+.alert-item.warning .alert-date{color:#fcd34d}
+.alert-stats{display:flex;gap:10px;margin-bottom:14px}
+.alert-stat{flex:1;padding:10px;border-radius:8px;text-align:center;background:#0e1729;border:1px solid var(--line)}
+.alert-stat.expired{border-color:#ef4444}
+.alert-stat.warning{border-color:#f59e0b}
+.alert-stat .num{font-size:22px;font-weight:800}
+.alert-stat.expired .num{color:#ef4444}
+.alert-stat.warning .num{color:#f59e0b}
+.alert-stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sim-panel{position:absolute;top:70px;left:10px;z-index:180;width:250px;background:rgba(18,28,47,.96);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;backdrop-filter:blur(6px)}
 .sim-panel.open{display:block}
 .sim-panel h4{margin:0 0 8px;font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
 .sim-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid #1e293b}
 .sim-row:last-child{border-bottom:none}
 .sim-val{font-weight:700;color:#93c5fd}
 .sim-save{color:#86efac;font-weight:800}
-
+/* PRINT */
 @media print{
   @page{size:A4 landscape;margin:0}
   body{overflow:visible;background:#fff}
-  .toolbar,.library,.props,.minimap,.compass,.floors-bar,.view-3d,.sim-panel,
-  .route-info,.floating-controls,.fps-hint,.pan-nav,.sector-nav,
-  #modalIA,#modalConfig,#modalGuide,#modalPrint,#modalFloors{display:none!important}
+  .toolbar,.library,.props,.minimap,.compass,.floors-bar,.view-3d,.sim-panel,.route-info,.floating-controls,.fps-hint,.pan-nav,.sector-nav,#modalIA,#modalConfig,#modalGuide,#modalPrint,#modalFloors,#modalAlerts{display:none!important}
   .main{display:block}
   .viewer{position:static;background:#fff;overflow:visible}
-  .view{position:static;overflow:visible;padding:0;display:block!important}
-  .stage-wrap{position:static;padding:0;display:block}
+  .view{position:static;overflow:visible;padding:0;display:none!important}
+  body.print-2d #view2d{display:block!important}
+  .stage-wrap{position:static;padding:0;display:block;overflow:visible}
   .zoombox{position:static;width:auto!important;height:auto!important}
-  .stage{position:static!important;transform:none!important;box-shadow:none;border-radius:0;
-    width:100%;height:auto;min-height:210mm;left:auto!important;top:auto!important}
+  .stage{position:relative!important;transform:none!important;box-shadow:none;border-radius:0;width:100%;height:auto;min-height:210mm;left:0!important;top:0!important;margin:0}
   .elem .handle,.elem .del{display:none!important}
   .elem.selected{outline:none!important}
 }
@@ -317,9 +227,7 @@ button.small{padding:4px 8px;font-size:11px}
     <button id="zoomFit">Ajustar</button>
   </div>
   <div class="group mode-2d">
-    <label style="display:flex;align-items:center;gap:4px;color:var(--muted);cursor:pointer;font-size:11px">
-      <input type="checkbox" id="snapChk" checked> Imán
-    </label>
+    <label style="display:flex;align-items:center;gap:4px;color:var(--muted);cursor:pointer;font-size:11px"><input type="checkbox" id="snapChk" checked> Imán</label>
   </div>
   <div class="group mode-2d">
     <button id="btnRotateLeft" title="Rotar 90° izq">⟲</button>
@@ -335,6 +243,7 @@ button.small{padding:4px 8px;font-size:11px}
   <div class="group">
     <button id="btnSimular" class="primary" style="background:#7c3aed;border-color:#7c3aed">⏱ Simular</button>
     <button id="btnIA" style="background:#0f766e;border-color:#0f766e;color:#fff">🤖 IA</button>
+    <button id="btnAlerts" style="background:#b91c1c;border-color:#dc2626;color:#fff;position:relative">🔔 Alertas<span id="alertsCount" style="display:none;position:absolute;top:-6px;right:-6px;background:#fbbf24;color:#000;font-size:10px;font-weight:800;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center">0</span></button>
   </div>
   <div class="group">
     <button id="btnDemo" style="background:#0f766e;border-color:#0f766e;color:#fff">🏭 Demo</button>
@@ -350,9 +259,7 @@ button.small{padding:4px 8px;font-size:11px}
   <div class="group">
     <button id="btnGuide" style="background:#0e7490;border-color:#0e7490;color:#fff">📖 Guía</button>
   </div>
-  <div class="copyright-inline">
-    <b>© Lahional Ávila</b> Todos los derechos reservados
-  </div>
+  <div class="copyright-inline"><b>© Lahional Ávila</b> Todos los derechos reservados</div>
 </div>
 
 <div class="main">
@@ -365,9 +272,7 @@ button.small{padding:4px 8px;font-size:11px}
   </aside>
 
   <div class="viewer">
-    <div class="floating-controls floating-left">
-      <button id="btnToggleLeft" title="Panel izquierdo">◀</button>
-    </div>
+    <div class="floating-controls floating-left"><button id="btnToggleLeft" title="Panel izquierdo">◀</button></div>
     <div class="floating-controls floating-right">
       <button id="btnToggleRight" title="Panel derecho">▶</button>
       <button id="btnGear" title="Configuración">⚙</button>
@@ -458,14 +363,17 @@ button.small{padding:4px 8px;font-size:11px}
       <label>Columnas<input type="number" id="secCols" min="1" max="6" value="3"></label>
       <label>Filas<input type="number" id="secRows" min="1" max="6" value="2"></label>
     </div>
+    <label style="display:flex;gap:5px;margin-top:6px;align-items:center;color:var(--muted);font-size:10px" class="mode-3d">
+      <input type="checkbox" id="showSectorWalls"> Mostrar divisiones de sector en 3D
+    </label>
 
     <hr>
-    <h3>Análisis de capacidad</h3>
+    <h3>Análisis</h3>
     <div class="analysis-box">
       <div class="analysis-row"><span>Elementos</span><span class="analysis-val" id="anaCount">0</span></div>
       <div class="analysis-row"><span>Área ocupada</span><span class="analysis-val" id="anaArea">0 m²</span></div>
-      <div class="analysis-row"><span>Volumen racks</span><span class="analysis-val" id="anaVol">0 m³</span></div>
-      <div class="analysis-row"><span>Altura máxima</span><span class="analysis-val" id="anaH">0 m</span></div>
+      <div class="analysis-row"><span>Volumen</span><span class="analysis-val" id="anaVol">0 m³</span></div>
+      <div class="analysis-row"><span>Altura máx.</span><span class="analysis-val" id="anaH">0 m</span></div>
     </div>
     <button class="small" id="btnAnalizar" style="margin-top:6px;background:#1e3355">📊 Recalcular</button>
 
@@ -498,14 +406,27 @@ button.small{padding:4px 8px;font-size:11px}
       • <b>Pan 2D</b>: click der, botón central, Alt+click o ✋.<br>
       • <b>Zoom</b>: rueda (hacia el cursor).<br>
       • <b>FPS 3D</b>: click izq/der avanzar/retroceder.<br>
-      • <b>Undo ruta</b>: <span class="kbd">Ctrl+Z</span> o botón.<br>
+      • <b>Undo ruta</b>: <span class="kbd">Ctrl+Z</span>.<br>
       • <b>Clic der. waypoint</b> = eliminar punto.
     </div>
   </aside>
 </div>
 </div>
 
-<!-- MODALES -->
+<!-- ============ MODALES ============ -->
+<div class="modal-bg" id="modalAlerts">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>🔔 Alertas de vencimiento</h3>
+      <button class="small" id="closeModalAlerts" style="background:transparent;border:none;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="modal-body" id="alertsBody"></div>
+    <div class="modal-foot">
+      <button class="primary" id="closeAlertsBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="modalIA">
   <div class="modal wide">
     <div class="modal-head">
@@ -539,8 +460,8 @@ button.small{padding:4px 8px;font-size:11px}
     <div class="modal-body">
       <p style="margin:0 0 10px;color:var(--muted)">¿Qué vista quieres imprimir?</p>
       <div class="print-options">
-        <button data-print="2d"><span class="big-ico">🗺</span><span>2D</span><span style="font-size:10px;color:var(--muted)">Plano</span></button>
-        <button data-print="3d"><span class="big-ico">🧊</span><span>3D</span><span style="font-size:10px;color:var(--muted)">Vista actual</span></button>
+        <button data-print="2d"><span class="big-ico">🗺</span><span>2D</span><span style="font-size:10px;color:var(--muted)">Plano de planta</span></button>
+        <button data-print="3d"><span class="big-ico">🧊</span><span>3D</span><span style="font-size:10px;color:var(--muted)">Vista 3D</span></button>
         <button data-print="both"><span class="big-ico">📄</span><span>Ambos</span><span style="font-size:10px;color:var(--muted)">2 páginas</span></button>
       </div>
     </div>
@@ -557,9 +478,7 @@ button.small{padding:4px 8px;font-size:11px}
       <div id="floorsList"></div>
       <button class="primary" id="addFloorBtn" style="margin-top:10px;width:100%">+ Agregar piso</button>
     </div>
-    <div class="modal-foot">
-      <button class="primary" id="closeFloorsBtn">Cerrar</button>
-    </div>
+    <div class="modal-foot"><button class="primary" id="closeFloorsBtn">Cerrar</button></div>
   </div>
 </div>
 
@@ -589,9 +508,7 @@ button.small{padding:4px 8px;font-size:11px}
         <button id="cfgChangePwd" style="margin-top:8px">Cambiar</button>
       </div>
     </div>
-    <div class="modal-foot">
-      <button class="primary" id="cfgClose">Cerrar</button>
-    </div>
+    <div class="modal-foot"><button class="primary" id="cfgClose">Cerrar</button></div>
   </div>
 </div>
 
@@ -609,6 +526,7 @@ button.small{padding:4px 8px;font-size:11px}
         <button data-guide="nav3d">Navegación 3D</button>
         <button data-guide="floors">Pisos</button>
         <button data-guide="inv">Inventario</button>
+        <button data-guide="expiry">Vencimientos</button>
         <button data-guide="sim">Simulación</button>
         <button data-guide="ia">Asesor IA</button>
         <button data-guide="normativa">Normativa</button>
@@ -616,22 +534,23 @@ button.small{padding:4px 8px;font-size:11px}
       </div>
       <div class="guide-content active" data-guide="inicio">
         <h4>Bienvenido al WMS Layout Bodega Pro</h4>
-        <p>Editor profesional con navegación 2D estilo CAD, 3D con primera persona, simulación de picking, análisis normativo chileno.</p>
-        <h4>Primeros pasos</h4>
+        <p>Editor profesional con navegación 2D estilo CAD, 3D con primera persona, sistema de vencimientos, simulación de picking y análisis normativo chileno.</p>
+        <h4>Novedades</h4>
         <ul>
-          <li><code>🏭 Demo</code> carga bodega modelo.</li>
-          <li><code>🗑 Vaciar</code> limpia todo.</li>
-          <li><code>📖 Guía</code> vuelve aquí.</li>
+          <li><b>Vencimientos:</b> asigna fecha a extintores, botiquines, visitas de plagas, etc.</li>
+          <li><b>Alertas:</b> botón 🔔 muestra todo lo vencido o por vencer.</li>
+          <li><b>Print:</b> elige 2D, 3D o Ambos — ya no se mezclan.</li>
+          <li><b>3D:</b> zoom mejorado, geometrías específicas (cilindros, esferas).</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="nav2d">
         <h4>Navegación 2D</h4>
         <ul>
           <li><b>Zoom</b>: rueda del mouse (hacia el cursor).</li>
-          <li><b>Pan</b>: click derecho arrastrando, botón central, Alt+click, o activa ✋ Modo mover.</li>
-          <li><b>Rotar</b>: ⟲ ⟳. El plano se reajusta automáticamente.</li>
-          <li><b>Ir a sector</b>: panel abajo derecha (A1, A2…).</li>
-          <li><b>Flechas</b>: panel abajo izquierda para desplazar.</li>
+          <li><b>Pan</b>: click derecho, botón central, Alt+click o ✋.</li>
+          <li><b>Rotar</b>: ⟲ ⟳. El plano se reajusta.</li>
+          <li><b>Sectores</b>: panel abajo derecha.</li>
+          <li><b>Flechas</b>: abajo izquierda.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="edit">
@@ -639,69 +558,83 @@ button.small{padding:4px 8px;font-size:11px}
         <ul>
           <li><b>Agregar</b>: clic en librería.</li>
           <li><b>Mover</b>: arrastra (Shift = sin imán).</li>
-          <li><b>Redimensionar</b>: handle azul inferior derecho.</li>
-          <li><b>Eliminar</b>: × o tecla Supr.</li>
-          <li><b>Flechas</b>: mover 1px (10 con Shift).</li>
-          <li><b>Medidas reales</b>: en panel, edita Ancho (m) / Alto (m).</li>
+          <li><b>Redimensionar</b>: handle azul.</li>
+          <li><b>Eliminar</b>: × o Supr.</li>
+          <li><b>Medidas</b>: en panel, edita Ancho/Alto en metros.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="nav3d">
         <h4>Navegación 3D</h4>
         <ul>
-          <li><b>Órbita</b>: arrastra. Rueda para zoom.</li>
-          <li><b>Primera persona</b>: botón 🚶.</li>
-          <li><b>Moverse</b>: click izq avanza, click der retrocede, mouse mira.</li>
-          <li><b>Salir FPS</b>: Esc.</li>
-          <li>Al cambiar de piso, la cámara se mueve al nivel correspondiente.</li>
+          <li><b>Órbita</b>: arrastra + rueda.</li>
+          <li><b>Zoom 3D</b>: ahora entra hasta 100 unidades de distancia.</li>
+          <li><b>FPS</b>: botón 🚶. Click izq avanza, click der retrocede. Esc sale.</li>
+          <li><b>Pisos</b>: al cambiar de piso la cámara se teletransporta.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="floors">
-        <h4>Gestión de pisos</h4>
+        <h4>Pisos</h4>
         <ul>
-          <li>Botón ⚙ en la barra de pisos abre el gestor.</li>
-          <li>Renombrar, eliminar o agregar pisos.</li>
+          <li>Botón ⚙ en la barra de pisos para gestionarlos.</li>
+          <li>Renombrar, eliminar o agregar.</li>
           <li>Cada piso tiene sus propios elementos.</li>
-          <li>Clic en un piso navega a él en 2D y 3D.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="inv">
         <h4>Inventario</h4>
         <ul>
-          <li><b>Agregar</b>: SKU, nombre, cantidad, ubicación (rack/contenedor/piso).</li>
+          <li><b>Agregar</b>: SKU, nombre, cantidad, ubicación.</li>
           <li><b>Peligrosa</b>: clase 2-9 según NCh 382.</li>
-          <li><b>CSV</b>: formato <code>SKU,Nombre,Cant,Tipo,Rack,Fila,Col,Alt,Cont,Zona,Clase</code>.</li>
+          <li><b>CSV</b>: importación masiva.</li>
         </ul>
+      </div>
+      <div class="guide-content" data-guide="expiry">
+        <h4>Vencimientos</h4>
+        <ul>
+          <li>Selecciona un elemento → panel derecho → sección Vencimiento.</li>
+          <li><b>Fecha</b>: cuándo vence.</li>
+          <li><b>Avisar antes</b>: días de aviso previo (30 por defecto).</li>
+          <li>Extintores, botiquines, sensores, alarmas y servicios tienen fecha por defecto.</li>
+        </ul>
+        <h4>Estados visuales</h4>
+        <ul>
+          <li><b>❗ Rojo pulsante</b>: vencido.</li>
+          <li><b>⏰ Naranja</b>: por vencer (dentro del plazo de aviso).</li>
+          <li><b>Sin badge</b>: vigente o sin vencimiento.</li>
+        </ul>
+        <div class="kbd-tip">El botón 🔔 Alertas muestra el contador y una lista completa. Haz clic en cualquier alerta para ir al elemento.</div>
       </div>
       <div class="guide-content" data-guide="sim">
         <h4>Simulación</h4>
         <ul>
-          <li><b>Ruta manual</b>: 🎬 + clic en el plano. Clic derecho sobre un punto = eliminarlo.</li>
+          <li><b>Ruta manual</b>: 🎬 + clic en plano. Clic der. sobre un punto = eliminar.</li>
           <li><b>Undo</b>: ↶ o Ctrl+Z.</li>
-          <li><b>Simular</b>: compara tiempos con/sin ubicación.</li>
-          <li><b>Play</b>: anima el recorrido en 2D y 3D.</li>
+          <li><b>Simular</b>: compara con/sin ubicación.</li>
+          <li><b>Play</b>: anima en 2D y 3D.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="ia">
         <h4>Asesor IA</h4>
         <ul>
           <li>6 consultas predefinidas.</li>
-          <li>Requiere API key de Groq en ⚙.</li>
+          <li>Requiere API key de Groq.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="normativa">
-        <h4>Normativa chilena</h4>
+        <h4>Normativa</h4>
         <ul>
-          <li><b>D.S. 594</b>: extintores (150→4A/9m, 225→6A/11m, 375→10A/13m, 420→20A/15m).</li>
-          <li><b>D.S. 43</b>: sustancias peligrosas, HDS.</li>
+          <li><b>D.S. 594</b>: extintores.</li>
+          <li><b>D.S. 43</b>: sustancias peligrosas.</li>
           <li><b>NCh 382</b>: clasificación.</li>
         </ul>
       </div>
       <div class="guide-content" data-guide="pdf">
-        <h4>Imprimir / PDF</h4>
+        <h4>Imprimir</h4>
         <ul>
-          <li><code>🖨 PDF</code>: elige 2D, 3D o Ambos.</li>
+          <li><b>2D</b>: solo plano.</li>
+          <li><b>3D</b>: solo vista 3D.</li>
+          <li><b>Ambos</b>: 2 páginas.</li>
           <li>Incluye marca de agua de autoría.</li>
-          <li>Usa "Guardar como PDF" del navegador.</li>
         </ul>
       </div>
     </div>
@@ -715,7 +648,7 @@ button.small{padding:4px 8px;font-size:11px}
 <script>
 const OWNER = 'Lahional Ávila';
 const STAGE_W = 1123, STAGE_H = 794;
-const KEY = 'wms_bodega_v12';
+const KEY = 'wms_bodega_v13';
 const KEY_CFG_PWD = 'wms_cfg_pwd_hash';
 const KEY_CFG_API = 'wms_cfg_groq_key';
 const PIXELS_PER_METER = 40;
@@ -726,13 +659,18 @@ let GROQ_API_KEY = '';
 
 const ACCESSORIES = {
   'Seguridad': [
-    { type:'extintor', icon:'🧯', label:'Extintor', w:40, h:60, color:'#ef4444', h3d:60 },
+    { type:'extintor', icon:'🧯', label:'Extintor', w:40, h:60, color:'#ef4444', h3d:60, shape:'cyl' },
     { type:'salida', icon:'🚪', label:'Salida emerg.', w:90, h:20, color:'#22c55e', h3d:10 },
-    { type:'sensor', icon:'📡', label:'Sensor humo', w:30, h:30, color:'#eab308', h3d:15 },
-    { type:'alarma', icon:'🔔', label:'Alarma', w:30, h:30, color:'#f97316', h3d:20 },
+    { type:'sensor', icon:'📡', label:'Sensor humo', w:30, h:30, color:'#eab308', h3d:15, shape:'sph' },
+    { type:'alarma', icon:'🔔', label:'Alarma', w:30, h:30, color:'#f97316', h3d:20, shape:'sph' },
     { type:'botiquin', icon:'🩹', label:'Botiquín', w:40, h:40, color:'#ef4444', h3d:30 },
-    { type:'lavaojos', icon:'💧', label:'Lava ojos', w:35, h:35, color:'#06b6d4', h3d:30 },
+    { type:'lavaojos', icon:'💧', label:'Lava ojos', w:35, h:35, color:'#06b6d4', h3d:30, shape:'cyl' },
     { type:'punto_enc', icon:'🆘', label:'Punto enc.', w:80, h:80, color:'#22c55e', h3d:5 }
+  ],
+  'Servicios': [
+    { type:'visita_plagas', icon:'🐀', label:'Control plagas', w:60, h:60, color:'#7c3aed', h3d:20 },
+    { type:'sanitizacion', icon:'🧴', label:'Sanitización', w:60, h:60, color:'#06b6d4', h3d:20 },
+    { type:'mantencion', icon:'🔧', label:'Mantención', w:60, h:60, color:'#f59e0b', h3d:20 }
   ],
   'Mobiliario': [
     { type:'escritorio', icon:'🪑', label:'Escritorio', w:120, h:60, color:'#a16207', h3d:50 },
@@ -749,9 +687,9 @@ const ACCESSORIES = {
     { type:'caja', icon:'📦', label:'Caja', w:50, h:50, color:'#b45309', h3d:30 },
     { type:'pallet', icon:'🪵', label:'Pallet', w:100, h:100, color:'#a16207', h3d:15 },
     { type:'peligrosa', icon:'☣', label:'Mat. peligrosa', w:80, h:80, color:'#dc2626', h3d:50 },
-    { type:'tuberia', icon:'🔧', label:'Tubería', w:200, h:20, color:'#0891b2', h3d:40 },
+    { type:'tuberia', icon:'🔧', label:'Tubería', w:200, h:20, color:'#0891b2', h3d:40, shape:'cyl' },
     { type:'herramienta', icon:'🔨', label:'Herramienta', w:40, h:40, color:'#475569', h3d:10 },
-    { type:'contenedor', icon:'🗑', label:'Contenedor', w:80, h:60, color:'#334155', h3d:50 }
+    { type:'contenedor', icon:'🗑', label:'Contenedor', w:80, h:60, color:'#334155', h3d:50, shape:'cyl' }
   ],
   'Instalaciones': [
     { type:'bano', icon:'🚻', label:'Baño', w:120, h:100, color:'#3b82f6', h3d:100 },
@@ -759,7 +697,7 @@ const ACCESSORIES = {
     { type:'ascensor', icon:'🛗', label:'Ascensor', w:100, h:100, color:'#64748b', h3d:120 },
     { type:'puerta', icon:'🚪', label:'Puerta', w:90, h:20, color:'#d97706', h3d:40 },
     { type:'ventana', icon:'🪟', label:'Ventana', w:80, h:15, color:'#0ea5e9', h3d:30 },
-    { type:'lampara', icon:'💡', label:'Lámpara', w:30, h:30, color:'#fbbf24', h3d:20 },
+    { type:'lampara', icon:'💡', label:'Lámpara', w:30, h:30, color:'#fbbf24', h3d:20, shape:'sph' },
     { type:'letrero', icon:'🪧', label:'Letrero', w:80, h:30, color:'#f59e0b', h3d:20 },
     { type:'colgante', icon:'🎏', label:'Colgante', w:60, h:30, color:'#f59e0b', h3d:20 }
   ],
@@ -770,7 +708,7 @@ const ACCESSORIES = {
     { type:'computador', icon:'💻', label:'Computador', w:40, h:30, color:'#475569', h3d:30 }
   ],
   'Estructura': [
-    { type:'pilar', icon:'⬛', label:'Pilar', w:30, h:30, color:'#334155', h3d:150 },
+    { type:'pilar', icon:'⬛', label:'Pilar', w:30, h:30, color:'#334155', h3d:150, shape:'cyl' },
     { type:'muro', icon:'▬', label:'Muro', w:200, h:15, color:'#334155', h3d:120 },
     { type:'demarcacion', icon:'⚠', label:'Demarcación', w:200, h:15, color:'#fbbf24', h3d:2 },
     { type:'zona', icon:'▭', label:'Zona', w:220, h:160, color:'#3b82f6', h3d:3, transparent:true },
@@ -778,15 +716,21 @@ const ACCESSORIES = {
   ]
 };
 
+const EXPIRY_DEFAULTS = {
+  extintor: 365, botiquin: 365, sensor: 365, alarma: 730, lavaojos: 180, punto_enc: 730,
+  visita_plagas: 30, sanitizacion: 90, mantencion: 180
+};
+
 let FLOORS = {
-  sub:{ name:'Subterráneo', y: -600 }, p1: { name:'Piso 1', y: 0 },
-  p2: { name:'Piso 2', y: 600 }, p3: { name:'Piso 3', y: 1200 }
+  sub:{name:'Subterráneo',y:-600}, p1:{name:'Piso 1',y:0},
+  p2:{name:'Piso 2',y:600}, p3:{name:'Piso 3',y:1200}
 };
 
 let state = {
   floors: { sub:{elements:[]}, p1:{elements:[]}, p2:{elements:[]}, p3:{elements:[]} },
-  currentFloor: 'p1', sectors: { cols:3, rows:2 }, currentSector: null,
-  title: 'LAYOUT BODEGA', author: 'Lahional Ávila', nextId: 1, route: [], inventory: []
+  currentFloor: 'p1', sectors: {cols:3,rows:2}, currentSector: null,
+  title: 'LAYOUT BODEGA', author: 'Lahional Ávila', nextId: 1,
+  route: [], inventory: [], showSectorWalls3D: false
 };
 
 let zoom = 1, snap = true, selectedId = null, drag = null, routeMode = false;
@@ -805,7 +749,7 @@ const floorsBar = document.getElementById('floorsBar');
 const routeInfo = document.getElementById('routeInfo');
 
 const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
-const snapVal = (v,shift)=>(snap && !shift)?Math.round(v/10)*10:Math.round(v);
+const snapVal = (v,shift)=>(snap&&!shift)?Math.round(v/10)*10:Math.round(v);
 const getEl = id => state.floors[state.currentFloor].elements.find(e=>e.id===id);
 const selected = () => getEl(selectedId);
 const curEls = () => state.floors[state.currentFloor].elements;
@@ -829,18 +773,105 @@ function load(){
     document.getElementById('planAuthor').value = state.author || 'Lahional Ávila';
     document.getElementById('secCols').value = state.sectors.cols;
     document.getElementById('secRows').value = state.sectors.rows;
+    if(state.showSectorWalls3D) document.getElementById('showSectorWalls').checked = true;
     return true;
   }catch(e){ return false; }
 }
 
-/* ============================================================
-   TRANSFORMACIÓN 2D (la base de todo)
-   ============================================================ */
+/* ============ VENCIMIENTOS ============ */
+function getExpiryStatus(el){
+  if(!el.expiry) return 'none';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(el.expiry + 'T00:00:00');
+  const diff = Math.floor((exp - today) / (1000*60*60*24));
+  if(diff < 0) return 'expired';
+  if(diff <= (el.alertDays || 30)) return 'warning';
+  return 'ok';
+}
+
+function countAlerts(){
+  let n = 0;
+  Object.values(state.floors).forEach(fd=>{
+    fd.elements.forEach(el=>{
+      const s = getExpiryStatus(el);
+      if(s === 'expired' || s === 'warning') n++;
+    });
+  });
+  return n;
+}
+
+function updateAlertsBadge(){
+  const n = countAlerts();
+  const badge = document.getElementById('alertsCount');
+  if(n > 0){ badge.style.display = 'block'; badge.textContent = n; }
+  else badge.style.display = 'none';
+}
+
+function openAlerts(){
+  const body = document.getElementById('alertsBody');
+  const items = [];
+  Object.entries(state.floors).forEach(([fk, fd])=>{
+    fd.elements.forEach(el=>{
+      const s = getExpiryStatus(el);
+      if(s === 'expired' || s === 'warning') items.push({floor: fk, el, status: s});
+    });
+  });
+  if(items.length === 0){
+    body.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">✅ Sin alertas de vencimiento activas</p>';
+  } else {
+    items.sort((a,b)=>{
+      if(a.status !== b.status) return a.status === 'expired' ? -1 : 1;
+      return new Date(a.el.expiry) - new Date(b.el.expiry);
+    });
+    const expired = items.filter(i=>i.status === 'expired').length;
+    const warning = items.filter(i=>i.status === 'warning').length;
+    let html = `<div class="alert-stats">
+      <div class="alert-stat expired"><div class="num">${expired}</div><div class="lbl">Vencidos</div></div>
+      <div class="alert-stat warning"><div class="num">${warning}</div><div class="lbl">Por vencer</div></div>
+    </div>`;
+    items.forEach(({floor, el, status})=>{
+      const days = Math.round((new Date(el.expiry) - new Date()) / (1000*60*60*24));
+      const daysTxt = days < 0 ? Math.abs(days) + ' días vencido' : days + ' días restantes';
+      const icon = status === 'expired' ? '❗' : '⏰';
+      html += `<div class="alert-item ${status}">
+        <div class="alert-icon">${icon}</div>
+        <div class="alert-info">
+          <div class="alert-name">${el.label}</div>
+          <div class="alert-floor">${FLOORS[floor]?.name || floor}</div>
+          <div class="alert-date">${status==='expired'?'VENCIDO':'Por vencer'} · ${new Date(el.expiry).toLocaleDateString('es-CL')} · ${daysTxt}</div>
+        </div>
+        <button onclick="goToAlert('${floor}', ${el.id})" class="small" style="background:#1e40af;border-color:#1e40af">Ir →</button>
+      </div>`;
+    });
+    body.innerHTML = html;
+  }
+  document.getElementById('modalAlerts').classList.add('open');
+}
+
+function goToAlert(floor, id){
+  state.currentFloor = floor;
+  renderFloorsBar();
+  renderAll();
+  updateCajetin();
+  document.getElementById('modalAlerts').classList.remove('open');
+  const el = getEl(id);
+  if(el){
+    select(id);
+    const cx = el.x + el.w/2, cy = el.y + el.h/2;
+    const relX = cx - STAGE_W/2, relY = cy - STAGE_H/2;
+    const rad = rotation2D * Math.PI / 180;
+    const cos = Math.cos(rad), sin = Math.sin(rad);
+    panX = -(relX * cos - relY * sin) * zoom;
+    panY = -(relX * sin + relY * cos) * zoom;
+    applyTransform();
+  }
+}
+window.goToAlert = goToAlert;
+
+/* ============ TRANSFORM 2D ============ */
 function applyTransform(){
-  const w = stageWrap.clientWidth;
-  const h = stageWrap.clientHeight;
-  const cx = w/2 + panX;
-  const cy = h/2 + panY;
+  const w = stageWrap.clientWidth, h = stageWrap.clientHeight;
+  const cx = w/2 + panX, cy = h/2 + panY;
   stage.style.left = (cx - STAGE_W/2) + 'px';
   stage.style.top = (cy - STAGE_H/2) + 'px';
   stage.style.transform = `rotate(${rotation2D}deg) scale(${zoom})`;
@@ -850,8 +881,7 @@ function clientToStage(clientX, clientY){
   const wr = stageWrap.getBoundingClientRect();
   const cx = wr.left + wr.width/2 + panX;
   const cy = wr.top + wr.height/2 + panY;
-  const dx = clientX - cx;
-  const dy = clientY - cy;
+  const dx = clientX - cx, dy = clientY - cy;
   const rad = -rotation2D * Math.PI / 180;
   const cos = Math.cos(rad), sin = Math.sin(rad);
   const urx = dx * cos - dy * sin;
@@ -862,17 +892,14 @@ function clientToStage(clientX, clientY){
 function zoomToward(clientX, clientY, factor){
   const p = clientToStage(clientX, clientY);
   zoom = clamp(zoom * factor, 0.15, 4);
-  const relX = p.x - STAGE_W/2;
-  const relY = p.y - STAGE_H/2;
+  const relX = p.x - STAGE_W/2, relY = p.y - STAGE_H/2;
   const rad = rotation2D * Math.PI / 180;
   const cos = Math.cos(rad), sin = Math.sin(rad);
   const offX = (relX * cos - relY * sin) * zoom;
   const offY = (relX * sin + relY * cos) * zoom;
   const wr = stageWrap.getBoundingClientRect();
-  const wrapCx = wr.left + wr.width/2;
-  const wrapCy = wr.top + wr.height/2;
-  panX = clientX - wrapCx - offX;
-  panY = clientY - wrapCy - offY;
+  panX = clientX - (wr.left + wr.width/2) - offX;
+  panY = clientY - (wr.top + wr.height/2) - offY;
   applyTransform();
   zoomLabel.textContent = Math.round(zoom*100) + '%';
 }
@@ -885,8 +912,7 @@ function setZoom(z){
 
 function fitZoom(){
   const pad = 60;
-  const w = stageWrap.clientWidth - pad;
-  const h = stageWrap.clientHeight - pad;
+  const w = stageWrap.clientWidth - pad, h = stageWrap.clientHeight - pad;
   const rad = rotation2D * Math.PI / 180;
   const cos = Math.abs(Math.cos(rad)), sin = Math.abs(Math.sin(rad));
   zoom = clamp(Math.min(w/(STAGE_W*cos + STAGE_H*sin), h/(STAGE_W*sin + STAGE_H*cos)), 0.15, 4);
@@ -895,43 +921,24 @@ function fitZoom(){
   zoomLabel.textContent = Math.round(zoom*100) + '%';
 }
 
-function rotateLeft(){
-  rotation2D = (rotation2D - 90 + 360) % 360;
-  updateCompass();
-  fitZoom();
-  save();
-}
-function rotateRight(){
-  rotation2D = (rotation2D + 90) % 360;
-  updateCompass();
-  fitZoom();
-  save();
-}
+function rotateLeft(){ rotation2D = (rotation2D - 90 + 360) % 360; updateCompass(); fitZoom(); save(); }
+function rotateRight(){ rotation2D = (rotation2D + 90) % 360; updateCompass(); fitZoom(); save(); }
 function updateCompass(){
   const c = document.querySelector('.compass');
   c.style.transform = `rotate(${rotation2D}deg)`;
-  c.querySelectorAll('.n, .s').forEach(el => {
-    el.style.transform = `rotate(${-rotation2D}deg)`;
-  });
+  c.querySelectorAll('.n, .s').forEach(el => { el.style.transform = `rotate(${-rotation2D}deg)`; });
 }
 
 function zoomToSector(r, c){
   const {cols, rows} = state.sectors;
   const cellW = STAGE_W / cols, cellH = STAGE_H / rows;
-  const cx = cellW * c + cellW / 2;
-  const cy = cellH * r + cellH / 2;
-  zoom = clamp(Math.min(
-    (stageWrap.clientWidth - 100) / cellW,
-    (stageWrap.clientHeight - 100) / cellH
-  ), 0.15, 4);
-  const relX = cx - STAGE_W/2;
-  const relY = cy - STAGE_H/2;
+  const cx = cellW * c + cellW / 2, cy = cellH * r + cellH / 2;
+  zoom = clamp(Math.min((stageWrap.clientWidth - 100)/cellW, (stageWrap.clientHeight - 100)/cellH), 0.15, 4);
+  const relX = cx - STAGE_W/2, relY = cy - STAGE_H/2;
   const rad = rotation2D * Math.PI / 180;
   const cos = Math.cos(rad), sin = Math.sin(rad);
-  const offX = (relX * cos - relY * sin) * zoom;
-  const offY = (relX * sin + relY * cos) * zoom;
-  panX = -offX;
-  panY = -offY;
+  panX = -(relX * cos - relY * sin) * zoom;
+  panY = -(relX * sin + relY * cos) * zoom;
   applyTransform();
   zoomLabel.textContent = Math.round(zoom*100) + '%';
   state.currentSector = {r, c};
@@ -939,9 +946,7 @@ function zoomToSector(r, c){
   updateCajetin();
 }
 
-/* ============================================================
-   MODO 2D / 3D
-   ============================================================ */
+/* ============ MODO ============ */
 function updateModeUI(){
   document.querySelectorAll('.mode-2d').forEach(el => el.classList.toggle('mode-2d-hidden', currentMode !== '2d'));
   document.querySelectorAll('.mode-3d').forEach(el => el.classList.toggle('mode-3d-hidden', currentMode !== '3d'));
@@ -966,9 +971,7 @@ function setMode(mode){
   }
 }
 
-/* ============================================================
-   LIBRERÍA
-   ============================================================ */
+/* ============ LIBRERÍA / ALTA / BAJA ============ */
 function renderLibrary(filter=''){
   filter = filter.toLowerCase();
   libraryList.innerHTML = '';
@@ -1002,15 +1005,25 @@ function addElement(type){
   const els = curEls();
   const el = {
     id: state.nextId++, type, icon: acc.icon, color: acc.color, h3d: acc.h3d,
+    shape: acc.shape || 'box',
     transparent: acc.transparent || false, opacity: acc.transparent ? 0.35 : 1,
     x: 60 + ((els.length*24)%240), y: 60 + ((els.length*24)%240),
     w: acc.w, h: acc.h, label: type==='texto' ? 'Texto' : acc.label + (n>1?' '+n:'')
   };
+  // Fecha de vencimiento por defecto para tipos que la tienen
+  const days = EXPIRY_DEFAULTS[type];
+  if(days){
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    el.expiry = d.toISOString().split('T')[0];
+    el.alertDays = 30;
+  }
   els.push(el);
   renderElement(el);
   select(el.id);
   updateSectorFromPoint(el.x+el.w/2, el.y+el.h/2);
   save();
+  updateAlertsBadge();
 }
 
 function removeElement(id){
@@ -1022,6 +1035,7 @@ function removeElement(id){
   if(d) d.remove();
   if(selectedId===id) select(null);
   save();
+  updateAlertsBadge();
 }
 
 function applyGeom(dom, el){
@@ -1038,9 +1052,14 @@ function applyGeom(dom, el){
 function renderElement(el){
   const d = document.createElement('div');
   d.className = 'elem';
+  const st = getExpiryStatus(el);
+  if(st === 'expired') d.classList.add('expired');
+  else if(st === 'warning') d.classList.add('warning');
   d.dataset.id = el.id;
   d.dataset.type = el.type;
   d.innerHTML = `<span class="ico">${el.icon}</span><span class="lbl"></span>` +
+    (st === 'expired' || st === 'warning' ?
+      `<div class="alert-badge ${st}">${st==='expired'?'!':'⏰'}</div>` : '') +
     `<button class="del" title="Eliminar">×</button><div class="handle" title="Redimensionar"></div>`;
   d.querySelector('.lbl').textContent = el.label;
   applyGeom(d, el);
@@ -1050,8 +1069,12 @@ function renderElement(el){
 function refreshElement(el){
   const d = stage.querySelector('.elem[data-id="'+el.id+'"]');
   if(!d) return;
-  applyGeom(d, el);
-  d.querySelector('.lbl').textContent = el.label;
+  // Re-render full element to update alert badge
+  const wasSelected = d.classList.contains('selected');
+  d.remove();
+  renderElement(el);
+  if(wasSelected) select(el.id);
+  // Attach events
 }
 
 function renderAll(){
@@ -1064,6 +1087,7 @@ function renderAll(){
   updateInvSummary();
   updateAnalysis();
   renderSectorNav();
+  updateAlertsBadge();
 }
 
 const ORIENT = [['Noroeste','Norte','Noreste'],['Oeste','Centro','Este'],['Suroeste','Sur','Sureste']];
@@ -1123,8 +1147,7 @@ function renderMinimap(){
       const cell = document.createElement('div');
       cell.className='mini-cell';
       cell.textContent = sectorName(r,c);
-      if(state.currentSector && state.currentSector.r===r && state.currentSector.c===c)
-        cell.classList.add('active');
+      if(state.currentSector && state.currentSector.r===r && state.currentSector.c===c) cell.classList.add('active');
       cell.onclick = ()=> zoomToSector(r,c);
       miniGrid.appendChild(cell);
     }
@@ -1167,8 +1190,7 @@ function updateCajetin(){
 
 function select(id){
   selectedId = id;
-  stage.querySelectorAll('.elem').forEach(d =>
-    d.classList.toggle('selected', Number(d.dataset.id)===id));
+  stage.querySelectorAll('.elem').forEach(d => d.classList.toggle('selected', Number(d.dataset.id)===id));
   renderProps();
   if(id){
     const el = getEl(id);
@@ -1183,6 +1205,11 @@ function renderProps(){
     return;
   }
   const isZone = el.type === 'zona' || el.type === 'sala_venta' || el.type === 'exposicion' || el.transparent;
+  const st = getExpiryStatus(el);
+  const statusHtml = st === 'expired' ? '<span style="color:#fca5a5;font-weight:700">⚠️ VENCIDO</span>' :
+                     st === 'warning' ? '<span style="color:#fcd34d;font-weight:700">⏰ Por vencer</span>' :
+                     st === 'ok' ? '<span style="color:#86efac">✅ Vigente</span>' :
+                     '<span style="color:var(--muted)">Sin vencimiento</span>';
   propsBody.innerHTML =
     `<label>Nombre<input type="text" id="pLabel"></label>
      <div class="row"><label>X<input type="number" id="pX"></label><label>Y<input type="number" id="pY"></label></div>
@@ -1191,18 +1218,27 @@ function renderProps(){
      <label>Color<input type="color" id="pColor"></label>
      <label>Opacidad<input type="number" id="pOpacity" min="0.05" max="1" step="0.05"></label>
      ${isZone ? '<div style="font-size:9px;color:#7d90ad;margin-top:2px">Tip: opacidad baja para zonas privadas.</div>' : ''}
-     <button class="danger" id="pDel">Eliminar elemento</button>`;
+     <hr>
+     <h4 class="section">📅 Vencimiento</h4>
+     <div style="margin-bottom:6px;font-size:11px">Estado: ${statusHtml}</div>
+     <label>Fecha<input type="date" id="pExpiry"></label>
+     <label>Avisar antes (días)<input type="number" id="pAlertDays" min="1" max="365"></label>
+     <button class="small" id="pClearExpiry" style="background:#374151;border-color:#4b5563;color:#fff;margin-top:4px">Sin vencimiento</button>
+     <button class="danger" id="pDel" style="margin-top:8px">Eliminar elemento</button>`;
 
   const pL=document.getElementById('pLabel'), pX=document.getElementById('pX'),
         pY=document.getElementById('pY'), pW=document.getElementById('pW'), pH=document.getElementById('pH'),
         pWm=document.getElementById('pWm'), pHm=document.getElementById('pHm'),
-        pColor=document.getElementById('pColor'), pOpacity=document.getElementById('pOpacity');
+        pColor=document.getElementById('pColor'), pOpacity=document.getElementById('pOpacity'),
+        pExpiry=document.getElementById('pExpiry'), pAlertDays=document.getElementById('pAlertDays');
   pL.value=el.label; pX.value=Math.round(el.x); pY.value=Math.round(el.y);
   pW.value=Math.round(el.w); pH.value=Math.round(el.h);
   pWm.value = (el.w / PIXELS_PER_METER).toFixed(1);
   pHm.value = (el.h / PIXELS_PER_METER).toFixed(1);
   pColor.value = el.color || '#64748b';
   pOpacity.value = (el.opacity !== undefined) ? el.opacity : 1;
+  pExpiry.value = el.expiry || '';
+  pAlertDays.value = el.alertDays || 30;
 
   const bindNum=(inp,prop)=>{
     inp.addEventListener('input',()=>{
@@ -1218,12 +1254,7 @@ function renderProps(){
       save();
     });
   };
-  pL.addEventListener('input',()=>{
-    const cur=selected(); if(!cur) return;
-    cur.label = pL.value;
-    refreshElement(cur);
-    save();
-  });
+  pL.addEventListener('input',()=>{ const cur=selected(); if(!cur) return; cur.label = pL.value; refreshElement(cur); save(); });
   bindNum(pX,'x'); bindNum(pY,'y'); bindNum(pW,'w'); bindNum(pH,'h'); bindNum(pOpacity,'opacity');
   const bindMeters=(inp,prop)=>{
     inp.addEventListener('input',()=>{
@@ -1238,40 +1269,47 @@ function renderProps(){
     });
   };
   bindMeters(pWm,'w'); bindMeters(pHm,'h');
-  pColor.addEventListener('input',()=>{
+  pColor.addEventListener('input',()=>{ const cur=selected(); if(!cur) return; cur.color = pColor.value; refreshElement(cur); save(); });
+  pExpiry.addEventListener('input',()=>{
     const cur=selected(); if(!cur) return;
-    cur.color = pColor.value;
+    cur.expiry = pExpiry.value || null;
     refreshElement(cur);
+    updateAlertsBadge();
+    save();
+    renderProps();
+  });
+  pAlertDays.addEventListener('input',()=>{
+    const cur=selected(); if(!cur) return;
+    let v = parseInt(pAlertDays.value);
+    if(!isNaN(v)) cur.alertDays = clamp(v, 1, 365);
+    refreshElement(cur);
+    updateAlertsBadge();
     save();
   });
+  document.getElementById('pClearExpiry').onclick = ()=>{
+    const cur=selected(); if(!cur) return;
+    cur.expiry = null;
+    refreshElement(cur);
+    updateAlertsBadge();
+    save();
+    renderProps();
+  };
   document.getElementById('pDel').onclick = ()=> removeElement(el.id);
 }
 
-/* ============================================================
-   EVENTOS 2D - PAN, DRAG, RESIZE, ZOOM
-   ============================================================ */
+/* ============ EVENTOS 2D ============ */
 stageWrap.addEventListener('contextmenu', e => e.preventDefault());
 
 stageWrap.addEventListener('pointerdown', e => {
-  // Pan: click derecho, botón central, Alt+click, o modo ✋
   const isPan = e.button === 2 || e.button === 1 || (e.button === 0 && (e.altKey || panModeActive));
-
   if(isPan){
     e.preventDefault();
-    panState = {
-      sx: e.clientX, sy: e.clientY,
-      px0: panX, py0: panY,
-      button: e.button,
-      moved: false
-    };
+    panState = { sx: e.clientX, sy: e.clientY, px0: panX, py0: panY, button: e.button, moved: false };
     stageWrap.setPointerCapture?.(e.pointerId);
     stageWrap.style.cursor = 'grabbing';
     return;
   }
-
   if(currentMode !== '2d') return;
-
-  // Ruta manual
   if(routeMode && e.button === 0){
     const p = clientToStage(e.clientX, e.clientY);
     state.route.push({x: clamp(p.x,0,STAGE_W), y: clamp(p.y,0,STAGE_H)});
@@ -1279,14 +1317,10 @@ stageWrap.addEventListener('pointerdown', e => {
     updateRouteInfo();
     return;
   }
-
-  // Elementos
   const dom = e.target.closest('.elem');
   if(!dom){
     const p = clientToStage(e.clientX, e.clientY);
-    if(p.x >= 0 && p.x <= STAGE_W && p.y >= 0 && p.y <= STAGE_H){
-      updateSectorFromPoint(p.x, p.y);
-    }
+    if(p.x >= 0 && p.x <= STAGE_W && p.y >= 0 && p.y <= STAGE_H) updateSectorFromPoint(p.x, p.y);
     select(null);
     return;
   }
@@ -1299,8 +1333,7 @@ stageWrap.addEventListener('pointerdown', e => {
   const startP = clientToStage(e.clientX, e.clientY);
   drag = {
     mode: isResize ? 'resize' : 'move',
-    id: el.id,
-    startStageX: startP.x, startStageY: startP.y,
+    id: el.id, startStageX: startP.x, startStageY: startP.y,
     x0: el.x, y0: el.y, w0: el.w, h0: el.h, dom
   };
   dom.setPointerCapture?.(e.pointerId);
@@ -1309,8 +1342,7 @@ stageWrap.addEventListener('pointerdown', e => {
 
 window.addEventListener('pointermove', e => {
   if(panState){
-    const dx = e.clientX - panState.sx;
-    const dy = e.clientY - panState.sy;
+    const dx = e.clientX - panState.sx, dy = e.clientY - panState.sy;
     if(!panState.moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) panState.moved = true;
     panX = panState.px0 + dx;
     panY = panState.py0 + dy;
@@ -1320,8 +1352,7 @@ window.addEventListener('pointermove', e => {
   if(!drag) return;
   const el = getEl(drag.id); if(!el) return;
   const p = clientToStage(e.clientX, e.clientY);
-  const dx = p.x - drag.startStageX;
-  const dy = p.y - drag.startStageY;
+  const dx = p.x - drag.startStageX, dy = p.y - drag.startStageY;
   const free = e.shiftKey;
   if(drag.mode==='move'){
     el.x = clamp(snapVal(drag.x0+dx, free), 0, STAGE_W-el.w);
@@ -1336,9 +1367,7 @@ window.addEventListener('pointermove', e => {
 
 window.addEventListener('pointerup', e => {
   if(panState){
-    if(panState.button === 2 && !panState.moved){
-      deleteNearestWaypoint(e.clientX, e.clientY);
-    }
+    if(panState.button === 2 && !panState.moved) deleteNearestWaypoint(e.clientX, e.clientY);
     panState = null;
     stageWrap.style.cursor = panModeActive ? 'grab' : 'default';
     return;
@@ -1373,7 +1402,6 @@ stageWrap.addEventListener('wheel', e => {
   zoomToward(e.clientX, e.clientY, e.deltaY < 0 ? 1.15 : 0.87);
 }, { passive: false });
 
-// Pan nav buttons
 document.querySelectorAll('[data-pan]').forEach(b => {
   b.onclick = () => {
     const step = 150;
@@ -1387,7 +1415,6 @@ document.querySelectorAll('[data-pan]').forEach(b => {
   };
 });
 
-// Pan mode button
 document.getElementById('btnPanMode').onclick = () => {
   panModeActive = !panModeActive;
   document.getElementById('btnPanMode').classList.toggle('active', panModeActive);
@@ -1409,9 +1436,7 @@ window.addEventListener('keydown', e => {
   }
 });
 
-/* ============================================================
-   RUTAS
-   ============================================================ */
+/* ============ RUTAS ============ */
 function renderRoute(){
   routesSvg.innerHTML = '';
   routesSvg.setAttribute('viewBox', `0 0 ${STAGE_W} ${STAGE_H}`);
@@ -1469,8 +1494,7 @@ function undoRoutePoint(){
 function playRoute(){
   if(state.route.length < 2){ alert('Agrega al menos 2 puntos'); return; }
   const walker = document.createElementNS('http://www.w3.org/2000/svg','circle');
-  walker.setAttribute('r', 8);
-  walker.setAttribute('class','walker');
+  walker.setAttribute('r', 8); walker.setAttribute('class','walker');
   routesSvg.appendChild(walker);
   const pts = state.route;
   let seg = 0, t = 0;
@@ -1489,9 +1513,7 @@ function playRoute(){
   if(window.animateRoute3D) window.animateRoute3D(state.route, state.currentFloor);
 }
 
-/* ============================================================
-   INVENTARIO / SIMULACIÓN / ANÁLISIS
-   ============================================================ */
+/* ============ INVENTARIO ============ */
 function updateInvSummary(){
   const inv = state.inventory;
   document.getElementById('invCount').textContent = inv.length;
@@ -1505,27 +1527,17 @@ function addInventoryItem(){
   if(!nombre) return;
   const tipo = prompt('Tipo (rack/piso/contenedor):', 'rack');
   if(!tipo) return;
-  const item = {
-    sku: 'SKU-' + String(state.inventory.length+1).padStart(3,'0'),
-    nombre, cantidad: parseInt(prompt('Cantidad:', '10')) || 10,
-    ubicacion: null, clase_peligro: null
-  };
-  if(tipo === 'piso'){
-    item.ubicacion = { tipo:'piso', zona_piso: prompt('Zona:', 'ZONA-A') };
-  } else if(tipo === 'contenedor'){
-    item.ubicacion = { tipo:'contenedor', contenedor_id: prompt('Contenedor:', 'C-01'),
-      rack_id: prompt('Rack:', 'RACK-01'),
-      fila: parseInt(prompt('Fila:','1'))||1, columna: parseInt(prompt('Col:','1'))||1, altura: parseInt(prompt('Alt:','1'))||1 };
-  } else {
-    item.ubicacion = { tipo:'rack', rack_id: prompt('Rack:', 'RACK-01'),
-      fila: parseInt(prompt('Fila:','1'))||1, columna: parseInt(prompt('Col:','1'))||1, altura: parseInt(prompt('Alt:','1'))||1 };
-  }
+  const item = { sku:'SKU-'+String(state.inventory.length+1).padStart(3,'0'), nombre,
+    cantidad: parseInt(prompt('Cantidad:', '10')) || 10, ubicacion: null, clase_peligro: null };
+  if(tipo === 'piso') item.ubicacion = { tipo:'piso', zona_piso: prompt('Zona:', 'ZONA-A') };
+  else if(tipo === 'contenedor') item.ubicacion = { tipo:'contenedor', contenedor_id: prompt('Contenedor:', 'C-01'),
+    rack_id: prompt('Rack:', 'RACK-01'), fila: parseInt(prompt('Fila:','1'))||1, columna: parseInt(prompt('Col:','1'))||1, altura: parseInt(prompt('Alt:','1'))||1 };
+  else item.ubicacion = { tipo:'rack', rack_id: prompt('Rack:', 'RACK-01'),
+    fila: parseInt(prompt('Fila:','1'))||1, columna: parseInt(prompt('Col:','1'))||1, altura: parseInt(prompt('Alt:','1'))||1 };
   const peligro = prompt('¿Peligrosa? (ninguna / 2 / 3 / 4 / 5 / 6 / 8 / 9):', 'ninguna');
   if(peligro && peligro.toLowerCase() !== 'ninguna') item.clase_peligro = peligro.replace('clase ','');
   state.inventory.push(item);
-  updateInvSummary();
-  save();
-  flash('Producto agregado');
+  updateInvSummary(); save(); flash('Producto agregado');
 }
 
 document.getElementById('csvInput').addEventListener('change', e=>{
@@ -1550,14 +1562,14 @@ document.getElementById('csvInput').addEventListener('change', e=>{
         if(pel && pel !== 'ninguna' && pel !== '') item.clase_peligro = pel.replace('clase ','');
         state.inventory.push(item); added++;
       }
-      updateInvSummary(); save();
-      flash(added + ' productos cargados');
+      updateInvSummary(); save(); flash(added + ' productos cargados');
     }catch(err){ alert('Error CSV'); }
     e.target.value = '';
   };
   reader.readAsText(file);
 });
 
+/* ============ SIMULACIÓN ============ */
 function distManhattan(a, b){ return Math.abs(a.x-b.x)/PIXELS_PER_METER + Math.abs(a.y-b.y)/PIXELS_PER_METER; }
 function coordProducto(p){
   if(p.ubicacion.tipo === 'piso'){
@@ -1577,49 +1589,35 @@ function simularPicking(){
   const cajas = curEls().filter(e=>e.type==='caja_reg' || e.type==='mostrador');
   let origen = { x: STAGE_W/2, y: STAGE_H/2 };
   if(cajas.length > 0) origen = { x: cajas[0].x + cajas[0].w/2, y: cajas[0].y + cajas[0].h/2 };
-
   const conUbic = inv.filter(p=>p.ubicacion);
   const sinUbic = inv.filter(p=>!p.ubicacion);
-
   let distCon = 0, posActual = { ...origen };
-  conUbic.forEach(p=>{
-    const coord = coordProducto(p);
-    distCon += distManhattan(posActual, coord);
-    posActual = coord;
-  });
+  conUbic.forEach(p=>{ const coord = coordProducto(p); distCon += distManhattan(posActual, coord); posActual = coord; });
   distCon += distManhattan(posActual, origen);
   const tiempoTotalCon = (distCon / WALK_SPEED) + (conUbic.length * PICK_TIME_PER_ITEM);
-
   let distSin = 0, posActualSin = { ...origen };
   const totalSinUbic = Math.max(sinUbic.length, conUbic.length);
   for(let i=0; i<totalSinUbic; i++){
     const racks = curEls().filter(e=>e.type==='rack' || e.type==='estante');
     let dest;
-    if(racks.length > 0){
-      const r = racks[Math.floor(Math.random()*racks.length)];
-      dest = { x: r.x + r.w/2, y: r.y + r.h/2 };
-    } else dest = { x: STAGE_W/2, y: STAGE_H/2 };
-    const mid = { x: (posActualSin.x + dest.x)/2 + (Math.random()-0.5)*150,
-                  y: (posActualSin.y + dest.y)/2 + (Math.random()-0.5)*150 };
+    if(racks.length > 0){ const r = racks[Math.floor(Math.random()*racks.length)]; dest = { x: r.x + r.w/2, y: r.y + r.h/2 }; }
+    else dest = { x: STAGE_W/2, y: STAGE_H/2 };
+    const mid = { x: (posActualSin.x + dest.x)/2 + (Math.random()-0.5)*150, y: (posActualSin.y + dest.y)/2 + (Math.random()-0.5)*150 };
     distSin += distManhattan(posActualSin, mid) + distManhattan(mid, dest);
     posActualSin = dest;
   }
   distSin += distManhattan(posActualSin, origen);
   const tiempoTotalSin = (distSin / WALK_SPEED) + (totalSinUbic * PICK_TIME_PER_ITEM * 1.5);
-
   document.getElementById('simCon').textContent = fmtTime(tiempoTotalCon);
   document.getElementById('simSin').textContent = fmtTime(tiempoTotalSin);
   document.getElementById('simProd').textContent = inv.length;
   const ahorro = tiempoTotalSin > 0 ? ((tiempoTotalSin - tiempoTotalCon) / tiempoTotalSin * 100) : 0;
   document.getElementById('simAhorro').textContent = ahorro.toFixed(0) + '%';
   document.getElementById('simPanel').classList.add('open');
-
   state.route = [{ ...origen }];
   conUbic.forEach(prod=>{ state.route.push(coordProducto(prod)); });
   state.route.push({ ...origen });
-  renderRoute();
-  updateRouteInfo();
-  playRoute();
+  renderRoute(); updateRouteInfo(); playRoute();
 }
 
 function updateAnalysis(){
@@ -1637,9 +1635,7 @@ function updateAnalysis(){
   document.getElementById('anaH').textContent = (maxH / PIXELS_PER_METER).toFixed(1) + ' m';
 }
 
-/* ============================================================
-   NORMATIVA / IA / CONFIG / PISOS / DEMO
-   ============================================================ */
+/* ============ NORMATIVA / IA / CONFIG ============ */
 function getSectorInfo(){
   const {cols, rows} = state.sectors;
   const cellW = STAGE_W / cols, cellH = STAGE_H / rows;
@@ -1668,9 +1664,8 @@ function validarExtintores(superficie, extintores){
   const minRequeridos = Math.ceil(superficie / supMax);
   const cumple = extintores >= minRequeridos;
   return { superficie, extintores, minRequeridos, distMax, potencial, cumple,
-    detalle: cumple
-      ? `✅ Cumple. Mínimo ${minRequeridos} extintor(es) ${potencial}. Distancia máx: ${distMax} m.`
-      : `⚠️ NO cumple. Necesitas ${minRequeridos} extintor(es) ${potencial}. Tienes ${extintores}. Distancia máx: ${distMax} m.` };
+    detalle: cumple ? `✅ Cumple. Mínimo ${minRequeridos} extintor(es) ${potencial}. Distancia máx: ${distMax} m.`
+                    : `⚠️ NO cumple. Necesitas ${minRequeridos} extintor(es) ${potencial}. Tienes ${extintores}. Distancia máx: ${distMax} m.` };
 }
 
 const PROMPTS_IA = {
@@ -1707,14 +1702,12 @@ async function enviarIA(tipo){
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
+      body: JSON.stringify({ model: GROQ_MODEL,
         messages: [
           { role: 'system', content: 'Experto en normativa chilena de almacenamiento (D.S. 594, D.S. 43, NCh 382). Español, claro y práctico.' },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.4, max_tokens: 800
-      })
+        temperature: 0.4, max_tokens: 800 })
     });
     if(!res.ok){ const err = await res.text(); throw new Error('HTTP ' + res.status + ': ' + err); }
     const data = await res.json();
@@ -1727,8 +1720,7 @@ function cfgCheckState(){
   const pwdStored = localStorage.getItem(KEY_CFG_PWD);
   const apiStored = localStorage.getItem(KEY_CFG_API);
   if(!pwdStored){
-    status.className = 'status warn';
-    status.textContent = '🆕 Define contraseña para proteger API key.';
+    status.className = 'status warn'; status.textContent = '🆕 Define contraseña para proteger API key.';
     document.getElementById('cfgPwdLabel').textContent = 'Nueva contraseña';
     document.getElementById('cfgPwdBtn').textContent = 'Crear';
     document.getElementById('cfgPwdBtn').dataset.mode = 'create';
@@ -1782,10 +1774,10 @@ async function cfgChangePwd(){
   if(!p1 || p1 !== p2){ status.className = 'status bad'; status.textContent = '❌ No coinciden'; return; }
   localStorage.setItem(KEY_CFG_PWD, await sha256(p1));
   status.className = 'status ok'; status.textContent = '✅ Contraseña actualizada';
-  document.getElementById('cfgNewPwd').value = '';
-  document.getElementById('cfgNewPwd2').value = '';
+  document.getElementById('cfgNewPwd').value = ''; document.getElementById('cfgNewPwd2').value = '';
 }
 
+/* ============ PISOS ============ */
 function renderFloorsBar(){
   floorsBar.innerHTML = '';
   Object.entries(FLOORS).forEach(([key, f])=>{
@@ -1859,13 +1851,22 @@ function sync3D(){
   Object.entries(state.floors).forEach(([k,f])=>{ floorsData[k] = { elements: f.elements }; });
   const heights = {};
   Object.entries(FLOORS).forEach(([k,f])=> heights[k] = f.y);
-  window.render3D({ floors: floorsData, floorHeights: heights, stageW: STAGE_W, stageH: STAGE_H, sectors: state.sectors });
+  window.render3D({
+    floors: floorsData,
+    floorHeights: heights,
+    stageW: STAGE_W, stageH: STAGE_H,
+    sectors: state.sectors,
+    showSectorWalls: state.showSectorWalls3D
+  });
 }
 
+/* ============ DEMO ============ */
 function cargarDemo(){
   if(!confirm('¿Cargar demo? Reemplaza todo el contenido.')) return;
   state.floors = { sub:{elements:[]}, p1:{elements:[]}, p2:{elements:[]}, p3:{elements:[]} };
   state.nextId = 1;
+  const today = new Date();
+  const fmt = d => { const x = new Date(); x.setDate(x.getDate()+d); return x.toISOString().split('T')[0]; };
   const demoP1 = [
     {type:'rack',x:80,y:100,w:250,h:90,label:'RACK A1'},
     {type:'rack',x:80,y:210,w:250,h:90,label:'RACK A2'},
@@ -1884,25 +1885,31 @@ function cargarDemo(){
     {type:'bano',x:990,y:440,w:110,h:100,label:'Baño'},
     {type:'escalera',x:990,y:560,w:110,h:70,label:'Escalera'},
     {type:'ascensor',x:870,y:560,w:100,h:70,label:'Ascensor'},
-    {type:'extintor',x:520,y:100,w:40,h:60,label:'Extintor 1'},
-    {type:'extintor',x:520,y:430,w:40,h:60,label:'Extintor 2'},
-    {type:'extintor',x:660,y:640,w:40,h:60,label:'Extintor 3'},
+    // Extintores con fechas de vencimiento (uno vencido, uno por vencer, uno vigente)
+    {type:'extintor',x:520,y:100,w:40,h:60,label:'Extintor 1 (VENCIDO)',expiry: fmt(-30),alertDays:30},
+    {type:'extintor',x:520,y:430,w:40,h:60,label:'Extintor 2 (por vencer)',expiry: fmt(15),alertDays:30},
+    {type:'extintor',x:660,y:640,w:40,h:60,label:'Extintor 3 (vigente)',expiry: fmt(180),alertDays:30},
+    {type:'botiquin',x:680,y:640,w:40,h:40,label:'Botiquín',expiry: fmt(60),alertDays:30},
     {type:'salida',x:600,y:740,w:120,h:20,label:'Salida emerg.'},
-    {type:'alarma',x:580,y:80,w:30,h:30,label:'Alarma'},
-    {type:'sensor',x:340,y:80,w:30,h:30,label:'Sensor'},
-    {type:'botiquin',x:680,y:640,w:40,h:40,label:'Botiquín'},
+    {type:'alarma',x:580,y:80,w:30,h:30,label:'Alarma',expiry: fmt(365),alertDays:30},
+    {type:'sensor',x:340,y:80,w:30,h:30,label:'Sensor',expiry: fmt(300),alertDays:30},
     {type:'escritorio',x:660,y:520,w:130,h:70,label:'Oficina'},
     {type:'silla',x:700,y:600,w:40,h:40,label:'Silla'},
     {type:'computador',x:700,y:530,w:40,h:30,label:'PC'},
     {type:'peligrosa',x:540,y:200,w:80,h:80,label:'Pinturas C3'},
     {type:'zona',x:600,y:320,w:80,h:80,label:'Carga',color:'#fbbf24',opacity:0.3},
     {type:'demarcacion',x:340,y:660,w:660,h:15,label:'Pasillo'},
-    {type:'muro',x:60,y:60,w:1000,h:10,label:'Pared N'}
+    {type:'muro',x:60,y:60,w:1000,h:10,label:'Pared N'},
+    // Servicios con vencimiento
+    {type:'visita_plagas',x:200,y:660,w:60,h:60,label:'Control plagas',expiry: fmt(-5),alertDays:15},
+    {type:'sanitizacion',x:280,y:660,w:60,h:60,label:'Sanitización',expiry: fmt(45),alertDays:30},
+    {type:'mantencion',x:360,y:660,w:60,h:60,label:'Mantención',expiry: fmt(120),alertDays:30}
   ];
   demoP1.forEach(d=>{
     const acc = findAcc(d.type);
     state.floors.p1.elements.push(Object.assign({
       id: state.nextId++, icon: acc.icon, color: acc.color, h3d: acc.h3d,
+      shape: acc.shape || 'box',
       transparent: acc.transparent || false, opacity: d.opacity || (acc.transparent ? 0.35 : 1)
     }, d));
   });
@@ -1913,13 +1920,14 @@ function cargarDemo(){
     {type:'estante',x:400,y:250,w:200,h:50,label:'Estante 2'},
     {type:'escalera',x:900,y:120,w:120,h:70,label:'Escalera P2'},
     {type:'bano',x:900,y:250,w:120,h:100,label:'Baño P2'},
-    {type:'extintor',x:600,y:100,w:40,h:60,label:'Extintor P2'},
+    {type:'extintor',x:600,y:100,w:40,h:60,label:'Extintor P2',expiry: fmt(-10),alertDays:30},
     {type:'zona',x:400,y:400,w:300,h:200,label:'Quincho',color:'#a16207',opacity:0.4}
   ];
   demoP2.forEach(d=>{
     const acc = findAcc(d.type);
     state.floors.p2.elements.push(Object.assign({
       id: state.nextId++, icon: acc.icon, color: acc.color, h3d: acc.h3d,
+      shape: acc.shape || 'box',
       transparent: acc.transparent || false, opacity: d.opacity || (acc.transparent ? 0.35 : 1)
     }, d));
   });
@@ -1937,10 +1945,7 @@ function cargarDemo(){
   ];
   state.route = [];
   state.currentFloor = 'p1'; state.currentSector = null;
-  FLOORS = {
-    sub:{ name:'Subterráneo', y: -600 }, p1:{ name:'Piso 1', y: 0 },
-    p2:{ name:'Piso 2', y: 600 }, p3:{ name:'Piso 3', y: 1200 }
-  };
+  FLOORS = { sub:{name:'Subterráneo',y:-600}, p1:{name:'Piso 1',y:0}, p2:{name:'Piso 2',y:600}, p3:{name:'Piso 3',y:1200} };
   document.getElementById('planTitle').value = state.title;
   document.getElementById('planAuthor').value = state.author;
   document.getElementById('secCols').value = 3;
@@ -1964,73 +1969,136 @@ function vaciarTodo(){
   flash('Todo vaciado');
 }
 
-/* ============================================================
-   PRINT
-   ============================================================ */
+/* ============ PRINT ============ */
 function showPrintDialog(){ document.getElementById('modalPrint').classList.add('open'); }
 
-function executePrint(mode){
-  document.getElementById('modalPrint').classList.remove('open');
-  let img3d = null;
-  if(mode === '3d' || mode === 'both'){
-    const canvas3d = document.getElementById('canvas3d');
-    if(canvas3d && canvas3d.width > 0){
-      if(window.forceRenderOnce) window.forceRenderOnce();
-      try{ img3d = canvas3d.toDataURL('image/png'); }catch(err){}
+function capture3D(){
+  return new Promise(async resolve => {
+    const view3d = document.getElementById('view3d');
+    const wasHidden = view3d.classList.contains('hidden');
+    if(wasHidden) view3d.classList.remove('hidden');
+    await new Promise(r => setTimeout(r, 150));
+    if(window.resize3D) window.resize3D();
+    if(window.forceRenderOnce) window.forceRenderOnce();
+    await new Promise(r => setTimeout(r, 100));
+    const canvas = document.getElementById('canvas3d');
+    let img = null;
+    if(canvas && canvas.width > 0 && canvas.height > 0){
+      try{ img = canvas.toDataURL('image/png'); }catch(e){}
     }
-    if(!img3d){ alert('Abre el modo 3D primero.'); return; }
-  }
-  if(mode === '2d'){ window.print(); return; }
-  if(mode === '3d'){
-    const w = window.open('', '_blank');
-    w.document.write(`<html><head><title>Layout 3D</title>
-      <style>body{margin:20px;font-family:sans-serif}img{max-width:100%;border:1px solid #ccc}.footer{text-align:center;font-size:10px;color:#666;margin-top:12px}</style>
-      </head><body>
-      <h2>${state.title} - Vista 3D</h2>
-      <img src="${img3d}"/>
-      <div class="footer">© ${OWNER} · Todos los derechos reservados · ${new Date().toLocaleDateString('es-CL')}</div>
-      </body></html>`);
-    w.document.close();
-    setTimeout(()=>w.print(), 600);
-    return;
-  }
-  const styleContent = document.querySelector('style').textContent;
-  const stageClone = stage.cloneNode(true);
-  stageClone.querySelectorAll('.handle, .del').forEach(el=>el.remove());
-  stageClone.style.transform = 'none';
-  stageClone.style.left = '0';
-  stageClone.style.top = '0';
-  const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>Layout</title><style>${styleContent}
-    body{margin:0;padding:20px;background:#fff}
-    .page{margin-bottom:30px;page-break-after:always}
-    .page:last-child{page-break-after:auto}
-    .stage-clone{position:relative;width:100%;max-width:100%;height:auto;border:1px solid #ccc}
-    .stage-clone .elem .lbl{font-size:10px}
-    </style></head><body>
-    <div class="page">
-      <h2 style="font-size:16px;margin:0 0 10px">${state.title} - Vista 2D · ${FLOORS[state.currentFloor]?.name || ''}</h2>
-      <div class="stage-clone">${stageClone.innerHTML}</div>
-      <div style="text-align:center;font-size:10px;color:#666;margin-top:8px">© ${OWNER} · Todos los derechos reservados</div>
-    </div>
-    <div class="page">
-      <h2 style="font-size:16px;margin:0 0 10px">${state.title} - Vista 3D</h2>
-      <img src="${img3d}" style="max-width:100%;border:1px solid #ccc"/>
-      <div style="text-align:center;font-size:10px;color:#666;margin-top:8px">© ${OWNER} · Todos los derechos reservados</div>
-    </div>
-    </body></html>`);
-  w.document.close();
-  setTimeout(()=>w.print(), 800);
+    if(wasHidden) view3d.classList.add('hidden');
+    resolve(img);
+  });
 }
 
-/* ============================================================
-   BOTONES
-   ============================================================ */
-document.getElementById('zoomIn').onclick = ()=> {
+function generatePrint2D(){
+  const stageClone = stage.cloneNode(true);
+  stageClone.querySelectorAll('.handle, .del').forEach(e => e.remove());
+  stageClone.style.transform = 'none';
+  stageClone.style.position = 'relative';
+  stageClone.style.left = '0';
+  stageClone.style.top = '0';
+  stageClone.style.boxShadow = 'none';
+  stageClone.style.borderRadius = '0';
+  return `
+    <div class="print-page">
+      <div class="print-header">
+        <h1>${state.title}</h1>
+        <p>${FLOORS[state.currentFloor]?.name || ''} · Sector: ${state.currentSector ? sectorName(state.currentSector.r, state.currentSector.c) : '—'} · ${new Date().toLocaleDateString('es-CL')}</p>
+      </div>
+      <div class="print-stage-wrap" style="position:relative;width:100%;aspect-ratio:${STAGE_W}/${STAGE_H};border:1px solid #ccc;background:#fff;overflow:hidden">
+        <div style="position:absolute;inset:0;transform-origin:top left" id="printStageContainer">
+          ${stageClone.outerHTML}
+        </div>
+      </div>
+      <div class="print-footer">© ${OWNER} · Todos los derechos reservados</div>
+    </div>`;
+}
+
+function generatePrint3D(img){
+  return `
+    <div class="print-page">
+      <div class="print-header">
+        <h1>${state.title} · Vista 3D</h1>
+        <p>${FLOORS[state.currentFloor]?.name || ''} · ${new Date().toLocaleDateString('es-CL')}</p>
+      </div>
+      <img src="${img}" style="width:100%;height:auto;border:1px solid #ccc;display:block"/>
+      <div class="print-footer">© ${OWNER} · Todos los derechos reservados</div>
+    </div>`;
+}
+
+async function executePrint(mode){
+  document.getElementById('modalPrint').classList.remove('open');
+
+  if(mode === '2d'){
+    document.body.classList.add('print-2d');
+    setTimeout(()=>{
+      window.print();
+      setTimeout(()=>document.body.classList.remove('print-2d'), 500);
+    }, 100);
+    return;
+  }
+
+  if(mode === '3d'){
+    const img = await capture3D();
+    if(!img){ alert('No se pudo capturar la vista 3D. Intenta de nuevo.'); return; }
+    openPrintWindow(generatePrint3D(img));
+    return;
+  }
+
+  if(mode === 'both'){
+    const img = await capture3D();
+    if(!img){ alert('No se pudo capturar la vista 3D.'); return; }
+    openPrintWindow(generatePrint2D() + generatePrint3D(img));
+    return;
+  }
+}
+
+function openPrintWindow(pagesHtml){
+  const styleEl = document.querySelector('style');
+  const css = styleEl ? styleEl.textContent : '';
+  const w = window.open('', '_blank');
+  if(!w){ alert('El navegador bloqueó la ventana emergente. Permite popups para imprimir.'); return; }
+  w.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="utf-8"><title>${state.title}</title>
+    <style>${css}
+      body{margin:0;padding:15mm;background:#fff;font-family:system-ui,sans-serif;overflow:visible}
+      @page{size:A4 landscape;margin:10mm}
+      .print-page{page-break-after:always;padding:0;margin-bottom:20px}
+      .print-page:last-child{page-break-after:auto}
+      .print-header{margin-bottom:12px;border-bottom:2px solid #1e40af;padding-bottom:8px}
+      .print-header h1{margin:0;font-size:18px;color:#1e40af;font-family:system-ui,sans-serif}
+      .print-header p{margin:4px 0 0;font-size:11px;color:#666;font-family:system-ui,sans-serif}
+      .print-footer{text-align:center;font-size:9px;color:#999;margin-top:20px;font-style:italic;font-family:system-ui,sans-serif}
+      .print-stage-wrap{position:relative;width:100%;background:#fff;border:1px solid #ccc;overflow:hidden}
+      .print-stage-wrap .stage{position:absolute!important;left:0!important;top:0!important;transform-origin:0 0!important;transform:none!important;box-shadow:none!important;border-radius:0!important}
+      .print-stage-wrap .elem .handle,.print-stage-wrap .elem .del{display:none!important}
+      .print-stage-wrap .elem.selected{outline:none!important}
+    </style>
+    </head><body>${pagesHtml}</body></html>`);
+  w.document.close();
+  setTimeout(()=>{
+    // Escalar el stage para que quepa
+    const container = w.document.getElementById('printStageContainer');
+    if(container){
+      const wrap = container.parentElement;
+      const scaleX = wrap.clientWidth / STAGE_W;
+      const scaleY = wrap.clientHeight / STAGE_H;
+      const scale = Math.min(scaleX, scaleY);
+      const inner = container.querySelector('.stage');
+      if(inner) inner.style.transform = `scale(${scale})`;
+    }
+    w.focus();
+    w.print();
+  }, 600);
+}
+
+/* ============ BOTONES ============ */
+document.getElementById('zoomIn').onclick = ()=>{
   const wr = stageWrap.getBoundingClientRect();
   zoomToward(wr.left + wr.width/2, wr.top + wr.height/2, 1.15);
 };
-document.getElementById('zoomOut').onclick = ()=> {
+document.getElementById('zoomOut').onclick = ()=>{
   const wr = stageWrap.getBoundingClientRect();
   zoomToward(wr.left + wr.width/2, wr.top + wr.height/2, 0.87);
 };
@@ -2051,6 +2119,7 @@ document.getElementById('riUndo').onclick = undoRoutePoint;
 document.getElementById('riClear').onclick = ()=>{ state.route = []; renderRoute(); updateRouteInfo(); save(); };
 document.getElementById('btnSimular').onclick = simularPicking;
 document.getElementById('btnIA').onclick = abrirIA;
+document.getElementById('btnAlerts').onclick = openAlerts;
 document.querySelectorAll('.ia-buttons button').forEach(b=>{ b.onclick = ()=> enviarIA(b.dataset.ia); });
 
 document.getElementById('btnSave').onclick = ()=>{ save(); flash('Guardado ✓'); };
@@ -2120,6 +2189,12 @@ document.getElementById('tab3d').onclick = ()=> setMode('3d');
 document.getElementById('autoRotate').onchange = e => { if(window.toggleAutoRotate) toggleAutoRotate(e.target.checked); };
 document.getElementById('btnFPS').onclick = ()=> { if(window.toggleFPS) window.toggleFPS(state.currentFloor); };
 
+document.getElementById('showSectorWalls').onchange = e => {
+  state.showSectorWalls3D = e.target.checked;
+  save();
+  if(window.render3D) sync3D();
+};
+
 document.getElementById('btnToggleLeft').onclick = ()=>{
   document.getElementById('libraryPanel').classList.toggle('hidden');
   setTimeout(() => applyTransform(), 300);
@@ -2129,6 +2204,12 @@ document.getElementById('btnToggleRight').onclick = ()=>{
   setTimeout(() => applyTransform(), 300);
 };
 
+// Alertas modal
+document.getElementById('closeModalAlerts').onclick = ()=> document.getElementById('modalAlerts').classList.remove('open');
+document.getElementById('closeAlertsBtn').onclick = ()=> document.getElementById('modalAlerts').classList.remove('open');
+document.getElementById('modalAlerts').onclick = e=>{ if(e.target === document.getElementById('modalAlerts')) document.getElementById('modalAlerts').classList.remove('open'); };
+
+// Floors
 document.getElementById('closeModalFloors').onclick = ()=> document.getElementById('modalFloors').classList.remove('open');
 document.getElementById('closeFloorsBtn').onclick = ()=> document.getElementById('modalFloors').classList.remove('open');
 document.getElementById('modalFloors').onclick = e=>{ if(e.target === document.getElementById('modalFloors')) document.getElementById('modalFloors').classList.remove('open'); };
@@ -2172,11 +2253,7 @@ document.getElementById('btnPrintGuide').onclick = ()=>{
     <p style="font-family:sans-serif;color:#666;font-size:11px">© ${OWNER} · Todos los derechos reservados</p>`;
   sections.forEach(sec=>{ html += `<div style="page-break-inside:avoid;margin-bottom:24px;font-family:sans-serif">${sec.innerHTML}</div>`; });
   const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>Guía</title>
-    <style>body{padding:30px;max-width:800px;margin:auto;line-height:1.6}
-    h4{color:#1e40af;margin-top:18px}code{background:#f0f0f0;padding:1px 5px;border-radius:3px}
-    .kbd-tip{background:#e0e7ff;padding:8px;border-left:3px solid #1e40af;margin:8px 0;font-size:11px}</style>
-    </head><body>${html}</body></html>`);
+  w.document.write(`<html><head><title>Guía</title><style>body{padding:30px;max-width:800px;margin:auto;line-height:1.6}h4{color:#1e40af;margin-top:18px}code{background:#f0f0f0;padding:1px 5px;border-radius:3px}.kbd-tip{background:#e0e7ff;padding:8px;border-left:3px solid #1e40af;margin:8px 0;font-size:11px}</style></head><body>${html}</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(), 500);
 };
@@ -2184,9 +2261,7 @@ document.getElementById('btnPrintGuide').onclick = ()=>{
 function flash(msg){
   const t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);'+
-    'background:#1e3a8a;color:#fff;padding:9px 16px;border-radius:9px;'+
-    'font-size:12px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  t.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1e3a8a;color:#fff;padding:9px 16px;border-radius:9px;font-size:12px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4)';
   document.body.appendChild(t);
   setTimeout(()=>t.remove(), 1500);
 }
@@ -2200,12 +2275,13 @@ function init(){
   } else {
     renderLibrary(); renderFloorsBar(); renderAll();
     updateInvSummary(); updateAnalysis();
-    setTimeout(() => { fitZoom(); }, 120);
+    setTimeout(() => fitZoom(), 120);
     updateCajetin();
   }
   updateModeUI();
   renderSectorNav();
   updateCompass();
+  updateAlertsBadge();
 }
 init();
 </script>
@@ -2247,8 +2323,8 @@ function init3D(canvas){
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-  const d1 = new THREE.DirectionalLight(0xffffff, 1.6); d1.position.set(1500, 3500, 1200); scene.add(d1);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const d1 = new THREE.DirectionalLight(0xffffff, 1.5); d1.position.set(1500, 3500, 1200); scene.add(d1);
   const d2 = new THREE.DirectionalLight(0xa5b4fc, 0.6); d2.position.set(-1200, 2000, -800); scene.add(d2);
   scene.add(new THREE.HemisphereLight(0x8fa3c0, 0x0a0f1a, 0.5));
 
@@ -2256,8 +2332,9 @@ function init3D(canvas){
   controlsOrbit.enableDamping = true;
   controlsOrbit.dampingFactor = 0.08;
   controlsOrbit.target.set(0, 400, 0);
-  controlsOrbit.minDistance = 300;
-  controlsOrbit.maxDistance = 8000;
+  // FIX: minDistance mucho menor para poder entrar dentro de los racks
+  controlsOrbit.minDistance = 100;
+  controlsOrbit.maxDistance = 10000;
 
   controlsFPS = new PointerLockControls(camera, canvas);
   scene.add(controlsFPS.getObject());
@@ -2292,6 +2369,17 @@ function init3D(canvas){
   animate();
 }
 
+window.resize3D = function(){
+  const canvas = document.getElementById('canvas3d');
+  if(!canvas || !renderer || !camera) return;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if(w > 0 && h > 0){
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+};
+
 function animate(){
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
@@ -2313,10 +2401,7 @@ function animate(){
     for(let i=1;i<pts.length;i++){
       const a = pts[i-1], b = pts[i];
       const segLen = a.distanceTo(b);
-      if(acc + segLen >= progress){
-        routeMarker.position.lerpVectors(a, b, (progress-acc)/segLen);
-        break;
-      }
+      if(acc + segLen >= progress){ routeMarker.position.lerpVectors(a, b, (progress-acc)/segLen); break; }
       acc += segLen;
     }
   }
@@ -2345,13 +2430,28 @@ function makeGlassMaterial(color, opacity=0.85){
   });
 }
 
+function createGeometry(el){
+  const hgt = el.h3d || 40;
+  if(el.shape === 'cyl') return new THREE.CylinderGeometry(el.w/2, el.w/2, hgt, 20);
+  if(el.shape === 'sph') return new THREE.SphereGeometry(Math.max(el.w, el.h)/2, 20, 16);
+  return new THREE.BoxGeometry(el.w, hgt, el.h);
+}
+
+// Función para verificar vencimiento (copiada del script principal)
+function isExpired(el){
+  if(!el.expiry) return false;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(el.expiry + 'T00:00:00');
+  return exp < today;
+}
+
 window.render3D = function(data){
   const canvas = document.getElementById('canvas3d');
   if(!initialized) init3D(canvas);
   W = data.stageW || 1123; H = data.stageH || 794;
   floorHeightsMap = data.floorHeights || {};
   clearRoot();
-  const {floors, floorHeights, sectors} = data;
+  const {floors, floorHeights, sectors, showSectorWalls} = data;
   const ys = Object.values(floorHeights);
   const midY = ys.length ? (Math.min(...ys) + Math.max(...ys))/2 : 400;
 
@@ -2359,10 +2459,7 @@ window.render3D = function(data){
     const baseY = floorHeights[fk] ?? 0;
     const slab = new THREE.Mesh(
       new THREE.PlaneGeometry(W, H),
-      new THREE.MeshPhysicalMaterial({
-        color: 0x1e293b, transparent:true, opacity:0.35, side: THREE.DoubleSide,
-        metalness: 0.2, roughness: 0.2, transmission: 0.3, thickness: 0.2
-      })
+      new THREE.MeshPhysicalMaterial({ color: 0x1e293b, transparent:true, opacity:0.35, side: THREE.DoubleSide, metalness: 0.2, roughness: 0.2, transmission: 0.3, thickness: 0.2 })
     );
     slab.rotation.x = -Math.PI/2;
     slab.position.set(0, baseY, 0);
@@ -2373,47 +2470,65 @@ window.render3D = function(data){
     grid.scale.set(1, 1, H/W);
     rootGroup.add(grid);
 
-    if(sectors && sectors.cols > 1){
-      const cellW = W / sectors.cols;
-      for(let i=1;i<sectors.cols;i++){
-        const geo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(-W/2 + cellW*i, baseY+1, -H/2),
-          new THREE.Vector3(-W/2 + cellW*i, baseY+1, H/2)
-        ]);
-        rootGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x64748b, transparent:true, opacity:0.3 })));
+    // Divisiones de sector solo si el usuario lo activó
+    if(showSectorWalls && sectors){
+      if(sectors.cols > 1){
+        const cellW = W / sectors.cols;
+        for(let i=1;i<sectors.cols;i++){
+          const geo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-W/2 + cellW*i, baseY+1, -H/2),
+            new THREE.Vector3(-W/2 + cellW*i, baseY+1, H/2)
+          ]);
+          rootGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x64748b, transparent:true, opacity:0.35 })));
+        }
       }
-    }
-    if(sectors && sectors.rows > 1){
-      const cellH = H / sectors.rows;
-      for(let i=1;i<sectors.rows;i++){
-        const geo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(-W/2, baseY+1, -H/2 + cellH*i),
-          new THREE.Vector3(W/2, baseY+1, -H/2 + cellH*i)
-        ]);
-        rootGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x64748b, transparent:true, opacity:0.3 })));
+      if(sectors.rows > 1){
+        const cellH = H / sectors.rows;
+        for(let i=1;i<sectors.rows;i++){
+          const geo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(-W/2, baseY+1, -H/2 + cellH*i),
+            new THREE.Vector3(W/2, baseY+1, -H/2 + cellH*i)
+          ]);
+          rootGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x64748b, transparent:true, opacity:0.35 })));
+        }
       }
     }
 
     fd.elements.forEach(el=>{
       const hgt = el.h3d || 40;
-      const geo = new THREE.BoxGeometry(el.w, hgt, el.h);
+      const geo = createGeometry(el);
       const col = new THREE.Color(el.color || '#64748b');
       const op = (el.opacity !== undefined && el.opacity !== 1) ? el.opacity : (el.transparent ? 0.35 : 1);
+      const expired = isExpired(el);
+
       let mat;
-      if(op < 1 || el.type === 'vitrina' || el.type === 'rack' || el.type === 'estante'){
+      if(expired){
+        mat = new THREE.MeshStandardMaterial({
+          color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.5,
+          roughness: 0.5, metalness: 0.1, transparent: op < 1, opacity: op
+        });
+      } else if(op < 1 || el.type === 'vitrina' || el.type === 'rack' || el.type === 'estante'){
         mat = makeGlassMaterial(col, Math.max(op, 0.75));
       } else {
         mat = new THREE.MeshStandardMaterial({ color: col, roughness:0.55, metalness:0.15 });
       }
+
       const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(el.x + el.w/2 - W/2, baseY + hgt/2, el.y + el.h/2 - H/2);
+      // Ajustar posición según geometría
+      let yOffset = hgt/2;
+      if(el.shape === 'sph') yOffset = Math.max(el.w, el.h)/2;
+      mesh.position.set(el.x + el.w/2 - W/2, baseY + yOffset, el.y + el.h/2 - H/2);
       rootGroup.add(mesh);
-      const edges = new THREE.LineSegments(
-        new THREE.EdgesGeometry(geo),
-        new THREE.LineBasicMaterial({ color: 0x0f172a, transparent:true, opacity:0.35 })
-      );
-      edges.position.copy(mesh.position);
-      rootGroup.add(edges);
+
+      // Edges solo para no-cyl y no-sph para no saturar
+      if(el.shape !== 'cyl' && el.shape !== 'sph'){
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(geo),
+          new THREE.LineBasicMaterial({ color: 0x0f172a, transparent:true, opacity:0.35 })
+        );
+        edges.position.copy(mesh.position);
+        rootGroup.add(edges);
+      }
     });
   });
   controlsOrbit.target.set(0, midY, 0);
@@ -2478,8 +2593,7 @@ window.forceRenderOnce = function(){ if(renderer && scene && camera) renderer.re
 
 setTimeout(()=>{
   if(!window.render3D){
-    document.getElementById('view3d').innerHTML =
-      '<div style="padding:60px;text-align:center;color:#8fa3c0;font-size:14px">⚠ Vista 3D no disponible.</div>';
+    document.getElementById('view3d').innerHTML = '<div style="padding:60px;text-align:center;color:#8fa3c0;font-size:14px">⚠ Vista 3D no disponible.</div>';
   }
 }, 6000);
 </script>
