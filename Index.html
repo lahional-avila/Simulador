@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WMS Layout Bodega Pro · Lahional Ávila</title>
+<style>
+:root{
+  --bg:#0b1220;--panel:#121c2f;--panel2:#0e1729;--line:#22304a;
+  --txt:#e8eefb;--muted:#8fa3c0;--accent:#3b82f6;--danger:#ef4444;--ok:#22c55e;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);color:var(--txt);overflow:hidden;font-size:13px}
+.app{display:flex;flex-direction:column;height:100vh}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+  padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);position:relative;z-index:10}
+.group{display:flex;gap:6px;align-items:center;padding-right:10px;border-right:1px solid var(--line)}
+.group:last-child{border-right:none;padding-right:0}
+button{font:inherit;color:var(--txt);background:#1b2942;border:1px solid var(--line);
+  padding:6px 10px;border-radius:8px;cursor:pointer;transition:.12s;white-space:nowrap}
+button:hover{background:#24385c;border-color:#33507f}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#2f6fd6}
+button.danger{background:#3a1520;border-color:#6b2233;color:#ffb4c0}
+button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+button.small{padding:4px 8px;font-size:11px}
+.copyright-inline{margin-left:auto;padding:4px 12px;font-size:9.5px;color:rgba(255,255,255,.48);
+  letter-spacing:.35px;user-select:none;pointer-events:none;white-space:nowrap;
+  font-family:system-ui,sans-serif;background:rgba(255,255,255,.05);border-radius:6px;
+  border:1px solid rgba(255,255,255,.07);display:flex;align-items:center}
+.copyright-inline b{color:rgba(255,255,255,.65);font-weight:600;margin-right:4px}
+.mode-2d-hidden{display:none !important}
+.mode-3d-hidden{display:none !important}
+.floating-controls{position:absolute;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:6px;z-index:250;pointer-events:none}
+.floating-left{left:6px}
+.floating-right{right:6px}
+.floating-controls button{pointer-events:auto;width:34px;height:34px;padding:0;border-radius:50%;
+  background:rgba(18,28,47,.93);border:1px solid var(--line);color:var(--txt);
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(0,0,0,.45);transition:.15s}
+.floating-controls button:hover{background:rgba(36,56,92,.96);border-color:var(--accent);transform:scale(1.08)}
+.main{flex:1;display:flex;min-height:0;position:relative}
+.library{width:255px;flex:0 0 255px;background:var(--panel);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow:hidden;transition:margin-left .25s}
+.library.hidden{margin-left:-255px}
+.library-head{padding:10px;border-bottom:1px solid var(--line)}
+.library-head h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.search{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--txt);font:inherit}
+.library-list{flex:1;overflow-y:auto;padding:8px}
+.category{margin-bottom:10px}
+.category h4{margin:0 0 6px;padding:4px 8px;font-size:10px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);background:#16233b;border-radius:6px}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.item{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 3px;border-radius:7px;background:var(--panel2);
+  border:1px solid var(--line);cursor:pointer;transition:.12s;text-align:center;
+  font-size:10px;line-height:1.15;color:#c9d5e8}
+.item:hover{background:#1e3355;border-color:var(--accent);color:#fff}
+.item .ico{font-size:18px;line-height:1;margin-bottom:2px}
+
+/* ===== VISOR 2D - ESTILO CAD ===== */
+.viewer{flex:1;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 30% 10%,#16233b 0%,var(--bg) 65%)}
+.view{position:absolute;inset:0;overflow:hidden}
+.view.hidden{display:none}
+.view-3d{overflow:hidden !important}
+#canvas3d{display:block;width:100%;height:100%;cursor:grab}
+#canvas3d:active{cursor:grabbing}
+#canvas3d.fps-active{cursor:crosshair}
+
+.stage-wrap{position:absolute;inset:0;overflow:hidden;cursor:default}
+.stage-wrap.pan-mode{cursor:grab}
+.stage-wrap.pan-mode:active{cursor:grabbing}
+.zoombox{position:absolute;inset:0;pointer-events:none}
+.stage{position:absolute;width:1123px;height:794px;background:#fff;
+  background-image:
+    linear-gradient(to right,#eef2f8 1px,transparent 1px),
+    linear-gradient(to bottom,#eef2f8 1px,transparent 1px),
+    linear-gradient(to right,#d9e2ef 1px,transparent 1px),
+    linear-gradient(to bottom,#d9e2ef 1px,transparent 1px);
+  background-size:20px 20px,20px 20px,100px 100px,100px 100px;
+  transform-origin:center center;border-radius:4px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(0,0,0,.55);touch-action:none;pointer-events:auto;
+  will-change:transform,left,top;}
+
+.sectors-layer{position:absolute;inset:0;pointer-events:none;z-index:5}
+.sector-line{position:absolute;background:#64748b;opacity:.3}
+.sector-v{top:0;bottom:0;width:1px}
+.sector-h{left:0;right:0;height:1px}
+.sector-label{position:absolute;font-size:9px;font-weight:800;color:#334155;
+  padding:1px 5px;background:rgba(255,255,255,.85);border-radius:3px;border:1px solid #cbd5e1;
+  transform:translate(-50%,-50%);white-space:nowrap;opacity:.75}
+.sector-tint{position:absolute;background:repeating-linear-gradient(45deg,
+  transparent,transparent 6px,rgba(59,130,246,.12) 6px,rgba(59,130,246,.12) 12px);
+  border:1px solid rgba(59,130,246,.25);pointer-events:none}
+
+.elem{position:absolute;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid #334155;background:#f8fafc;border-radius:4px;
+  font-size:8px;font-weight:700;color:#0f172a;text-align:center;
+  padding:1px 2px;overflow:hidden;cursor:move;user-select:none;line-height:1.05;z-index:10}
+.elem .ico{position:absolute;top:0;left:2px;font-size:9px;opacity:.8;pointer-events:none}
+.elem .lbl{pointer-events:none;word-break:break-word;padding:0 1px}
+.elem.selected{outline:2px dashed var(--accent);outline-offset:1px;z-index:50}
+.elem .handle{position:absolute;right:-6px;bottom:-6px;width:12px;height:12px;
+  background:var(--accent);border:2px solid #fff;border-radius:2px;
+  cursor:nwse-resize;display:none;z-index:2}
+.elem .del{position:absolute;right:-7px;top:-7px;width:16px;height:16px;
+  border-radius:50%;background:var(--danger);color:#fff;border:2px solid #fff;
+  font-size:10px;line-height:1;cursor:pointer;display:none;
+  align-items:center;justify-content:center;padding:0;font-weight:700;z-index:2}
+.elem.selected .handle{display:block}
+.elem.selected .del{display:flex}
+
+.cajetin{position:absolute;right:10px;bottom:10px;width:310px;z-index:1000;
+  background:#fff;border:2px solid #0f172a;border-radius:3px;padding:6px 8px;
+  pointer-events:none;font-family:system-ui,sans-serif}
+.cj-title{font-size:11px;font-weight:800;color:#0f172a;letter-spacing:.2px;
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cj-row{display:flex;justify-content:space-between;font-size:8px;color:#475569;margin-top:2px;align-items:center}
+.cj-badge{background:#1e40af;color:#fff;padding:0 5px;border-radius:2px;font-weight:700;font-size:8px}
+.cj-author{font-size:7px;color:#64748b;margin-top:3px;text-align:right;font-style:italic}
+.print-watermark{display:none}
+@media print{
+  .print-watermark{display:block;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+    font-size:7px;color:rgba(0,0,0,.22);letter-spacing:.5px;pointer-events:none;
+    z-index:10000;font-family:system-ui,sans-serif;}
+}
+
+.minimap{position:absolute;top:10px;right:10px;z-index:200;
+  background:rgba(18,28,47,.94);border:1px solid var(--line);
+  border-radius:8px;padding:6px;box-shadow:0 6px 20px rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.minimap h5{margin:0 0 4px;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.mini-grid{display:grid;gap:1px;background:#1e293b;border-radius:3px;overflow:hidden;width:120px}
+.mini-cell{background:#0f172a;display:flex;align-items:center;justify-content:center;
+  font-size:7px;color:#64748b;font-weight:700;height:20px;transition:.12s;cursor:pointer}
+.mini-cell.active{background:repeating-linear-gradient(45deg,#1e40af,#1e40af 2px,#2563eb 4px,#2563eb 6px);color:#fff}
+
+.compass{position:absolute;top:10px;left:10px;z-index:200;
+  background:rgba(18,28,47,.94);border:1px solid var(--line);border-radius:50%;
+  width:54px;height:54px;display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);color:#e2e8f0;font-size:8px;font-weight:800;
+  transition:transform .25s ease}
+.compass .arrow{font-size:18px;color:#ef4444;line-height:1}
+.compass .n,.compass .s{position:absolute}
+.compass .n{top:1px;font-size:9px;color:#ef4444;font-weight:800}
+.compass .s{bottom:1px;font-size:9px;color:#94a3b8;font-weight:700}
+
+.floors-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:3px;background:rgba(18,28,47,.94);padding:4px;border-radius:8px;
+  border:1px solid var(--line);z-index:150;backdrop-filter:blur(4px);align-items:center}
+.floors-bar button{padding:4px 10px;font-size:11px;border-radius:5px}
+.floors-bar button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.floors-bar .floor-mgr{padding:4px 8px;font-size:11px;background:#374151;border-color:#4b5563}
+
+.pan-nav{position:absolute;bottom:10px;left:10px;z-index:220;
+  display:none;grid-template-columns:repeat(3,32px);grid-template-rows:repeat(3,32px);gap:3px;
+  background:rgba(18,28,47,.94);padding:5px;border-radius:8px;
+  border:1px solid var(--line);backdrop-filter:blur(4px)}
+.pan-nav.visible{display:grid}
+.pan-nav button{width:32px;height:32px;padding:0;font-size:13px;border-radius:5px}
+.pan-nav .home{grid-column:2;grid-row:2;background:#1e40af;border-color:#1e40af;color:#fff}
+
+.sector-nav{position:absolute;bottom:10px;right:10px;z-index:220;
+  background:rgba(18,28,47,.94);padding:6px;border-radius:8px;
+  border:1px solid var(--line);backdrop-filter:blur(4px);
+  display:none;max-height:180px;overflow-y:auto;min-width:70px}
+.sector-nav.visible{display:block}
+.sector-nav h5{margin:0 0 4px;font-size:8px;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.06em;text-align:center}
+.sector-nav button{display:block;width:100%;padding:3px 8px;font-size:10px;margin-bottom:3px;text-align:center}
+
+.routes-svg{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:visible}
+.routes-svg .path{fill:none;stroke:#f59e0b;stroke-width:2.5;stroke-dasharray:5 3}
+.routes-svg .wp{fill:#f59e0b;stroke:#fff;stroke-width:1.5}
+.routes-svg .walker{fill:#ef4444;stroke:#fff;stroke-width:1.5;filter:drop-shadow(0 0 3px #ef4444)}
+
+.route-info{position:absolute;bottom:56px;left:50%;transform:translateX(-50%);
+  background:rgba(18,28,47,.96);border:1px solid #f59e0b;border-radius:8px;
+  padding:6px 10px;font-size:11px;color:#fbbf24;z-index:300;
+  display:none;backdrop-filter:blur(4px);white-space:nowrap;
+  box-shadow:0 6px 20px rgba(0,0,0,.5);align-items:center;gap:8px}
+.route-info.open{display:flex}
+.route-info b{color:#fff}
+.route-info button{padding:2px 6px;font-size:10px;background:#7f1d1d;border-color:#991b1b;color:#fff}
+
+.fps-hint{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.75);color:#fff;padding:10px 18px;border-radius:10px;
+  font-size:12px;z-index:400;display:none;backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.15);pointer-events:none;text-align:center}
+.fps-hint.open{display:block}
+.fps-hint kbd{background:rgba(255,255,255,.15);padding:1px 6px;border-radius:4px;
+  font-family:monospace;font-size:11px;margin:0 2px}
+
+.props{width:280px;flex:0 0 280px;background:var(--panel);border-left:1px solid var(--line);
+  padding:10px;overflow-y:auto;transition:margin-right .25s}
+.props.hidden{margin-right:-280px}
+.props h3{margin:0 0 8px;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.props label{display:block;margin-bottom:6px;color:var(--muted);font-size:10px}
+.props input[type=text],.props input[type=number],.props input[type=password],
+.props select,.props textarea,.props input[type=color]{
+  width:100%;margin-top:2px;padding:5px 7px;border-radius:6px;
+  border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit;font-size:12px}
+.props input[type=color]{padding:2px;height:28px;cursor:pointer}
+.props .row{display:flex;gap:5px}
+.props .row>label{flex:1}
+.props hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+.props .empty{color:#5f7392;font-size:11px;font-style:italic}
+.props button{width:100%;margin-top:3px}
+.props .info{font-size:9px;color:#7d90ad;line-height:1.5}
+.props .kbd{display:inline-block;background:#1e293b;border:1px solid #334155;padding:0 4px;
+  border-radius:3px;font-family:monospace;font-size:9px;margin:0 1px}
+
+.analysis-box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+  padding:8px;margin-top:6px;font-size:10px}
+.analysis-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #1e293b}
+.analysis-row:last-child{border:none}
+.analysis-val{font-weight:700;color:#93c5fd}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  width:min(560px,92vw);max-height:88vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 60px rgba(0,0,0,.7)}
+.modal.wide{width:min(900px,94vw)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 16px;border-bottom:1px solid var(--line)}
+.modal-head h3{margin:0;font-size:14px}
+.modal-body{padding:14px 16px;overflow-y:auto;flex:1;font-size:12px;line-height:1.6}
+.modal-body label{display:block;margin-bottom:8px;color:var(--muted);font-size:11px}
+.modal-body input[type=text],.modal-body input[type=password]{
+  width:100%;margin-top:3px;padding:7px 10px;border-radius:8px;
+  border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:inherit;font-size:12px}
+.modal-body .hint{font-size:10px;color:#7d90ad;margin-top:3px}
+.modal-foot{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.modal-body .resp{background:#0e1729;border:1px solid var(--line);border-radius:8px;
+  padding:10px;white-space:pre-wrap;margin-top:10px;font-size:11px;line-height:1.6;
+  max-height:320px;overflow-y:auto}
+.modal-body .status{padding:6px 10px;border-radius:6px;font-size:11px;margin-top:8px}
+.status.ok{background:#14532d;color:#86efac}
+.status.bad{background:#7f1d1d;color:#fecaca}
+.status.warn{background:#78350f;color:#fde68a}
+
+.ia-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+.ia-buttons button{width:100%;margin:0;padding:8px;font-size:11px;background:#1e3355;border-color:#334155}
+.ia-buttons button:hover{background:#2a4a7a;border-color:var(--accent)}
+
+.print-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
+.print-options button{padding:20px 10px;font-size:13px;background:#1e3355;border-color:#334155;
+  display:flex;flex-direction:column;align-items:center;gap:6px}
+.print-options button:hover{background:#2a4a7a;border-color:var(--accent)}
+.print-options .big-ico{font-size:30px}
+
+.floor-manager-row{display:flex;align-items:center;gap:6px;padding:8px;border-bottom:1px solid var(--line)}
+.floor-manager-row span{flex:1;font-size:12px}
+.floor-manager-row button{padding:3px 8px;font-size:10px}
+
+.guide-nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;
+  border-bottom:1px solid var(--line);padding-bottom:8px}
+.guide-nav button{font-size:11px;padding:5px 10px}
+.guide-nav button.active{background:var(--accent);border-color:var(--accent)}
+.guide-content{display:none}
+.guide-content.active{display:block}
+.guide-content h4{margin:10px 0 6px;font-size:13px;color:var(--txt)}
+.guide-content p{margin:0 0 8px;font-size:12px;line-height:1.6;color:#c9d5e8}
+.guide-content ul{padding-left:20px;margin:6px 0 10px}
+.guide-content li{margin-bottom:4px;font-size:12px;color:#c9d5e8}
+.guide-content code{background:#0e1729;padding:1px 5px;border-radius:3px;
+  font-family:monospace;font-size:11px;color:#93c5fd;border:1px solid var(--line)}
+.guide-content .kbd-tip{background:#0e1729;border-left:3px solid var(--accent);
+  padding:8px 12px;border-radius:4px;margin:8px 0;font-size:11px;color:#93c5fd}
+
+.sim-panel{position:absolute;top:70px;left:10px;z-index:180;width:250px;
+  background:rgba(18,28,47,.96);border:1px solid var(--line);border-radius:10px;
+  padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;backdrop-filter:blur(6px)}
+.sim-panel.open{display:block}
+.sim-panel h4{margin:0 0 8px;font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
+.sim-row{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid #1e293b}
+.sim-row:last-child{border-bottom:none}
+.sim-val{font-weight:700;color:#93c5fd}
+.sim-save{color:#86efac;font-weight:800}
+
+@media print{
+  @page{size:A4 landscape;margin:0}
+  body{overflow:visible;background:#fff}
+  .toolbar,.library,.props,.minimap,.compass,.floors-bar,.view-3d,.sim-panel,
+  .route-info,.floating-controls,.fps-hint,.pan-nav,.sector-nav,
+  #modalIA,#modalConfig,#modalGuide,#modalPrint,#modalFloors{display:none!important}
+  .main{display:block}
+  .viewer{position:static;background:#fff;overflow:visible}
+  .view{position:static;overflow:visible;padding:0;display:block!important}
+  .stage-wrap{position:static;padding:0;display:block}
+  .zoombox{position:static;width:auto!important;height:auto!important}
+  .stage{position:static!important;transform:none!important;box-shadow:none;border-radius:0;
+    width:100%;height:auto;min-height:210mm;left:auto!important;top:auto!important}
+  .elem .handle,.elem .del{display:none!important}
+  .elem.selected{outline:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="toolbar">
+  <div class="group">
+    <button id="tab2d" class="primary">🗺 2D</button>
+    <button id="tab3d">🧊 3D</button>
+  </div>
+  <div class="group">
+    <button id="zoomOut">−</button>
+    <span id="zoomLabel" style="min-width:44px;text-align:center;color:var(--muted);font-size:11px">100%</span>
+    <button id="zoomIn">+</button>
+    <button id="zoomFit">Ajustar</button>
+  </div>
+  <div class="group mode-2d">
+    <label style="display:flex;align-items:center;gap:4px;color:var(--muted);cursor:pointer;font-size:11px">
+      <input type="checkbox" id="snapChk" checked> Imán
+    </label>
+  </div>
+  <div class="group mode-2d">
+    <button id="btnRotateLeft" title="Rotar 90° izq">⟲</button>
+    <button id="btnRotateRight" title="Rotar 90° der">⟳</button>
+    <button id="btnPanMode" title="Modo mover plano (✋)">✋</button>
+  </div>
+  <div class="group">
+    <button id="btnRoute" class="mode-2d">🎬 Ruta</button>
+    <button id="btnPlay" class="primary">▶ Play</button>
+    <button id="btnUndoPoint">↶ Undo</button>
+    <button id="btnClearRoute">🗑 Ruta</button>
+  </div>
+  <div class="group">
+    <button id="btnSimular" class="primary" style="background:#7c3aed;border-color:#7c3aed">⏱ Simular</button>
+    <button id="btnIA" style="background:#0f766e;border-color:#0f766e;color:#fff">🤖 IA</button>
+  </div>
+  <div class="group">
+    <button id="btnDemo" style="background:#0f766e;border-color:#0f766e;color:#fff">🏭 Demo</button>
+    <button id="btnSave">💾 Guardar</button>
+    <button id="btnExport">⬇ JSON</button>
+    <button id="btnImport">⬆ JSON</button>
+    <input type="file" id="fileInput" accept=".json" hidden>
+  </div>
+  <div class="group">
+    <button class="primary" id="btnPrint">🖨 PDF</button>
+    <button class="danger" id="btnClear">🗑 Vaciar</button>
+  </div>
+  <div class="group">
+    <button id="btnGuide" style="background:#0e7490;border-color:#0e7490;color:#fff">📖 Guía</button>
+  </div>
+  <div class="copyright-inline">
+    <b>© Lahional Ávila</b> Todos los derechos reservados
+  </div>
+</div>
+
+<div class="main">
+  <aside class="library mode-2d" id="libraryPanel">
+    <div class="library-head">
+      <h3>📚 Accesorios</h3>
+      <input class="search" id="search" placeholder="Buscar...">
+    </div>
+    <div class="library-list" id="libraryList"></div>
+  </aside>
+
+  <div class="viewer">
+    <div class="floating-controls floating-left">
+      <button id="btnToggleLeft" title="Panel izquierdo">◀</button>
+    </div>
+    <div class="floating-controls floating-right">
+      <button id="btnToggleRight" title="Panel derecho">▶</button>
+      <button id="btnGear" title="Configuración">⚙</button>
+    </div>
+
+    <div class="view" id="view2d">
+      <div class="stage-wrap" id="stageWrap">
+        <div class="zoombox" id="zoomBox">
+          <div class="stage" id="stage">
+            <div class="sectors-layer" id="sectorsLayer"></div>
+            <svg class="routes-svg" id="routesSvg"></svg>
+            <div class="print-watermark">© Lahional Ávila · Todos los derechos reservados</div>
+            <div class="cajetin">
+              <div class="cj-title" id="cjTitle">LAYOUT BODEGA</div>
+              <div class="cj-row"><span>Sector:</span><span class="cj-badge" id="cjSector">—</span></div>
+              <div class="cj-row"><span>Piso:</span><span class="cj-badge" id="cjFloor">Piso 1</span></div>
+              <div class="cj-row"><span>Escala:</span><span id="cjScale">1:100 · 40 px/m</span></div>
+              <div class="cj-row"><span>Fecha:</span><span id="cjDate"></span></div>
+              <div class="cj-author" id="cjAuthor">Planificado por Lahional Ávila</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view view-3d hidden" id="view3d">
+      <canvas id="canvas3d"></canvas>
+      <div class="fps-hint" id="fpsHint">
+        <kbd>Click izq</kbd> avanzar · <kbd>Click der</kbd> retroceder · <kbd>Mouse</kbd> mirar · <kbd>Esc</kbd> salir
+      </div>
+    </div>
+
+    <div class="compass mode-2d"><span class="n">N</span><div class="arrow">▲</div><span class="s">S</span></div>
+
+    <div class="minimap mode-2d">
+      <h5>Navegación</h5>
+      <div class="mini-grid" id="miniGrid"></div>
+    </div>
+
+    <div class="pan-nav mode-2d" id="panNav">
+      <span></span>
+      <button data-pan="up" title="Arriba">↑</button>
+      <span></span>
+      <button data-pan="left" title="Izquierda">←</button>
+      <button data-pan="center" class="home" title="Centrar">⌂</button>
+      <button data-pan="right" title="Derecha">→</button>
+      <span></span>
+      <button data-pan="down" title="Abajo">↓</button>
+      <span></span>
+    </div>
+
+    <div class="sector-nav mode-2d" id="sectorNav">
+      <h5>Sectores</h5>
+      <div id="sectorNavList"></div>
+    </div>
+
+    <div class="floors-bar" id="floorsBar"></div>
+
+    <div class="sim-panel" id="simPanel">
+      <h4>⏱ Simulación</h4>
+      <div class="sim-row"><span>Velocidad:</span><span class="sim-val">1,5 m/s</span></div>
+      <div class="sim-row"><span>Con ubicación:</span><span class="sim-val" id="simCon">—</span></div>
+      <div class="sim-row"><span>Sin ubicación:</span><span class="sim-val" id="simSin">—</span></div>
+      <div class="sim-row"><span>Ahorro:</span><span class="sim-save" id="simAhorro">—</span></div>
+      <div class="sim-row"><span>Productos:</span><span class="sim-val" id="simProd">0</span></div>
+    </div>
+
+    <div class="route-info" id="routeInfo">
+      <span>Ruta: <b id="riDist">0 m</b> · Tiempo: <b id="riTime">0 s</b> · Puntos: <b id="riPts">0</b></span>
+      <button id="riUndo">↶ Undo</button>
+      <button id="riClear">🗑</button>
+    </div>
+  </div>
+
+  <aside class="props" id="propsPanel">
+    <h3>Propiedades</h3>
+    <div id="propsBody"><div class="empty">Selecciona un elemento</div></div>
+
+    <hr class="mode-2d">
+    <h3 class="mode-2d">Título y planificador</h3>
+    <input type="text" id="planTitle" value="LAYOUT BODEGA" class="mode-2d">
+    <input type="text" id="planAuthor" value="Lahional Ávila" style="margin-top:5px" class="mode-2d">
+    <div style="font-size:9px;color:#7d90ad;margin-top:4px" class="mode-2d">© Lahional Ávila (fijo)</div>
+
+    <hr class="mode-2d">
+    <h3 class="mode-2d">Sectores</h3>
+    <div class="row mode-2d">
+      <label>Columnas<input type="number" id="secCols" min="1" max="6" value="3"></label>
+      <label>Filas<input type="number" id="secRows" min="1" max="6" value="2"></label>
+    </div>
+
+    <hr>
+    <h3>Análisis de capacidad</h3>
+    <div class="analysis-box">
+      <div class="analysis-row"><span>Elementos</span><span class="analysis-val" id="anaCount">0</span></div>
+      <div class="analysis-row"><span>Área ocupada</span><span class="analysis-val" id="anaArea">0 m²</span></div>
+      <div class="analysis-row"><span>Volumen racks</span><span class="analysis-val" id="anaVol">0 m³</span></div>
+      <div class="analysis-row"><span>Altura máxima</span><span class="analysis-val" id="anaH">0 m</span></div>
+    </div>
+    <button class="small" id="btnAnalizar" style="margin-top:6px;background:#1e3355">📊 Recalcular</button>
+
+    <hr>
+    <h3>Inventario</h3>
+    <div style="font-size:10px;color:#7d90ad;line-height:1.5">
+      <div>Productos: <b id="invCount">0</b></div>
+      <div>Con ubicación: <b id="invUbic">0</b></div>
+      <div>Sin ubicación: <b id="invSinUbic">0</b></div>
+      <div>Peligrosos: <b id="invPeligro">0</b></div>
+    </div>
+    <button class="small" id="btnAddInv" style="margin-top:6px;background:#0f766e;border-color:#0f766e;color:#fff">+ Producto</button>
+    <button class="small" id="btnLoadCSV">📂 CSV</button>
+    <input type="file" id="csvInput" accept=".csv" hidden>
+
+    <hr class="mode-3d">
+    <h3 class="mode-3d">Vista 3D</h3>
+    <button class="small mode-3d" onclick="window.setView && setView('iso')">🔷 Isométrica</button>
+    <button class="small mode-3d" onclick="window.setView && setView('top')">⬆ Superior</button>
+    <button class="small mode-3d" onclick="window.setView && setView('front')">➡ Frontal</button>
+    <button class="small mode-3d" onclick="window.setView && setView('side')">◀ Lateral</button>
+    <button class="small mode-3d" id="btnFPS" style="margin-top:4px;background:#0f766e;border-color:#0f766e;color:#fff">🚶 Primera persona</button>
+    <label style="display:flex;gap:5px;margin-top:6px;align-items:center;color:var(--muted);font-size:10px" class="mode-3d">
+      <input type="checkbox" id="autoRotate"> Rotación auto
+    </label>
+
+    <hr>
+    <h3>Atajos</h3>
+    <div class="info">
+      • <b>Pan 2D</b>: click der, botón central, Alt+click o ✋.<br>
+      • <b>Zoom</b>: rueda (hacia el cursor).<br>
+      • <b>FPS 3D</b>: click izq/der avanzar/retroceder.<br>
+      • <b>Undo ruta</b>: <span class="kbd">Ctrl+Z</span> o botón.<br>
+      • <b>Clic der. waypoint</b> = eliminar punto.
+    </div>
+  </aside>
+</div>
+</div>
+
+<!-- MODALES -->
+<div class="modal-bg" id="modalIA">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>🤖 Asesor Normativo IA</h3>
+      <button class="small" id="closeModalIA" style="background:transparent;border:none;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="ia-buttons">
+        <button data-ia="extintores">🧯 Extintores</button>
+        <button data-ia="peligrosa">☣ Mercancía peligrosa</button>
+        <button data-ia="layout">📐 Recomendar layout</button>
+        <button data-ia="picking">⚡ Optimizar picking</button>
+        <button data-ia="evacuacion">🚨 Evacuación</button>
+        <button data-ia="general">📋 Análisis general</button>
+      </div>
+      <div class="resp" id="iaResp" style="display:none"></div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnImprimirIA">🖨 Imprimir</button>
+      <button class="primary" id="cerrarIA">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalPrint">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🖨 Imprimir / PDF</h3>
+      <button class="small" id="closeModalPrint" style="background:transparent;border:none;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 10px;color:var(--muted)">¿Qué vista quieres imprimir?</p>
+      <div class="print-options">
+        <button data-print="2d"><span class="big-ico">🗺</span><span>2D</span><span style="font-size:10px;color:var(--muted)">Plano</span></button>
+        <button data-print="3d"><span class="big-ico">🧊</span><span>3D</span><span style="font-size:10px;color:var(--muted)">Vista actual</span></button>
+        <button data-print="both"><span class="big-ico">📄</span><span>Ambos</span><span style="font-size:10px;color:var(--muted)">2 páginas</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalFloors">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>🏢 Gestión de pisos</h3>
+      <button class="small" id="closeModalFloors" style="background:transparent;border:none;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="floorsList"></div>
+      <button class="primary" id="addFloorBtn" style="margin-top:10px;width:100%">+ Agregar piso</button>
+    </div>
+    <div class="modal-foot">
+      <button class="primary" id="closeFloorsBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalConfig">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>⚙ Configuración</h3>
+      <button class="small" id="closeModalCfg" style="background:transparent;border:none;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="cfgStatus" class="status warn">Verificando...</div>
+      <div id="cfgPasswordSection" style="margin-top:12px">
+        <label id="cfgPwdLabel">Contraseña</label>
+        <input type="password" id="cfgPwdInput" placeholder="Contraseña">
+        <div class="hint" id="cfgPwdHint"></div>
+        <button class="primary" id="cfgPwdBtn" style="margin-top:8px">Continuar</button>
+      </div>
+      <div id="cfgApiSection" style="display:none;margin-top:14px">
+        <hr style="border:none;border-top:1px solid var(--line);margin:12px 0">
+        <h4 style="margin:0 0 8px;font-size:12px">🔑 API Key Groq</h4>
+        <input type="text" id="cfgApiKey" placeholder="gsk_...">
+        <button class="primary" id="cfgSaveApi" style="margin-top:8px">Guardar</button>
+        <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+        <h4 style="margin:0 0 8px;font-size:12px">🔒 Cambiar contraseña</h4>
+        <input type="password" id="cfgNewPwd" placeholder="Nueva contraseña">
+        <input type="password" id="cfgNewPwd2" placeholder="Repetir" style="margin-top:6px">
+        <button id="cfgChangePwd" style="margin-top:8px">Cambiar</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="primary" id="cfgClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalGuide">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>📖 Guía de uso</h3>
+      <button class="small" id="closeModalGuide" style="background:transparent;border:none;font-size:18px;color:var(--muted)">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="guide-nav">
+        <button data-guide="inicio" class="active">Inicio</button>
+        <button data-guide="nav2d">Navegación 2D</button>
+        <button data-guide="edit">Edición</button>
+        <button data-guide="nav3d">Navegación 3D</button>
+        <button data-guide="floors">Pisos</button>
+        <button data-guide="inv">Inventario</button>
+        <button data-guide="sim">Simulación</button>
+        <button data-guide="ia">Asesor IA</button>
+        <button data-guide="normativa">Normativa</button>
+        <button data-guide="pdf">Imprimir</button>
+      </div>
+      <div class="guide-content active" data-guide="inicio">
+        <h4>Bienvenido al WMS Layout Bodega Pro</h4>
+        <p>Editor profesional con navegación 2D estilo CAD, 3D con primera persona, simulación de picking, análisis normativo chileno.</p>
+        <h4>Primeros pasos</h4>
+        <ul>
+          <li><code>🏭 Demo</code> carga bodega modelo.</li>
+          <li><code>🗑 Vaciar</code> limpia todo.</li>
+          <li><code>📖 Guía</code> vuelve aquí.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="nav2d">
+        <h4>Navegación 2D</h4>
+        <ul>
+          <li><b>Zoom</b>: rueda del mouse (hacia el cursor).</li>
+          <li><b>Pan</b>: click derecho arrastrando, botón central, Alt+click, o activa ✋ Modo mover.</li>
+          <li><b>Rotar</b>: ⟲ ⟳. El plano se reajusta automáticamente.</li>
+          <li><b>Ir a sector</b>: panel abajo derecha (A1, A2…).</li>
+          <li><b>Flechas</b>: panel abajo izquierda para desplazar.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="edit">
+        <h4>Edición</h4>
+        <ul>
+          <li><b>Agregar</b>: clic en librería.</li>
+          <li><b>Mover</b>: arrastra (Shift = sin imán).</li>
+          <li><b>Redimensionar</b>: handle azul inferior derecho.</li>
+          <li><b>Eliminar</b>: × o tecla Supr.</li>
+          <li><b>Flechas</b>: mover 1px (10 con Shift).</li>
+          <li><b>Medidas reales</b>: en panel, edita Ancho (m) / Alto (m).</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="nav3d">
+        <h4>Navegación 3D</h4>
+        <ul>
+          <li><b>Órbita</b>: arrastra. Rueda para zoom.</li>
+          <li><b>Primera persona</b>: botón 🚶.</li>
+          <li><b>Moverse</b>: click izq avanza, click der retrocede, mouse mira.</li>
+          <li><b>Salir FPS</b>: Esc.</li>
+          <li>Al cambiar de piso, la cámara se mueve al nivel correspondiente.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="floors">
+        <h4>Gestión de pisos</h4>
+        <ul>
+          <li>Botón ⚙ en la barra de pisos abre el gestor.</li>
+          <li>Renombrar, eliminar o agregar pisos.</li>
+          <li>Cada piso tiene sus propios elementos.</li>
+          <li>Clic en un piso navega a él en 2D y 3D.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="inv">
+        <h4>Inventario</h4>
+        <ul>
+          <li><b>Agregar</b>: SKU, nombre, cantidad, ubicación (rack/contenedor/piso).</li>
+          <li><b>Peligrosa</b>: clase 2-9 según NCh 382.</li>
+          <li><b>CSV</b>: formato <code>SKU,Nombre,Cant,Tipo,Rack,Fila,Col,Alt,Cont,Zona,Clase</code>.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="sim">
+        <h4>Simulación</h4>
+        <ul>
+          <li><b>Ruta manual</b>: 🎬 + clic en el plano. Clic derecho sobre un punto = eliminarlo.</li>
+          <li><b>Undo</b>: ↶ o Ctrl+Z.</li>
+          <li><b>Simular</b>: compara tiempos con/sin ubicación.</li>
+          <li><b>Play</b>: anima el recorrido en 2D y 3D.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="ia">
+        <h4>Asesor IA</h4>
+        <ul>
+          <li>6 consultas predefinidas.</li>
+          <li>Requiere API key de Groq en ⚙.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="normativa">
+        <h4>Normativa chilena</h4>
+        <ul>
+          <li><b>D.S. 594</b>: extintores (150→4A/9m, 225→6A/11m, 375→10A/13m, 420→20A/15m).</li>
+          <li><b>D.S. 43</b>: sustancias peligrosas, HDS.</li>
+          <li><b>NCh 382</b>: clasificación.</li>
+        </ul>
+      </div>
+      <div class="guide-content" data-guide="pdf">
+        <h4>Imprimir / PDF</h4>
+        <ul>
+          <li><code>🖨 PDF</code>: elige 2D, 3D o Ambos.</li>
+          <li>Incluye marca de agua de autoría.</li>
+          <li>Usa "Guardar como PDF" del navegador.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnPrintGuide">🖨 Imprimir guía</button>
+      <button class="primary" id="cerrarGuide">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const OWNER = 'Lahional Ávila';
+const STAGE_W = 1123, STAGE_H = 794;
+const KEY = 'wms_bodega_v12';
+const KEY_CFG_PWD = 'wms_cfg_pwd_hash';
+const KEY_CFG_API = 'wms_cfg_groq_key';
+const PIXELS_PER_METER = 40;
+const WALK_SPEED = 1.5;
+const PICK_TIME_PER_ITEM = 20;
+const GROQ_MODEL = 'openai/gpt-oss-20b';
+let GROQ_API_KEY = '';
+
+const ACCESSORIES = {
+  'Seguridad': [
+    { type:'extintor', icon:'🧯', label:'Extintor', w:40, h:60, color:'#ef4444', h3d:60 },
+    { type:'salida', icon:'🚪', label:'Salida emerg.', w:90, h:20, color:'#22c55e', h3d:10 },
+    { type:'sensor', icon:'📡', label:'Sensor humo', w:30, h:30, color:'#eab308', h3d:15 },
+    { type:'alarma', icon:'🔔', label:'Alarma', w:30, h:30, color:'#f97316', h3d:20 },
+    { type:'botiquin', icon:'🩹', label:'Botiquín', w:40, h:40, color:'#ef4444', h3d:30 },
+    { type:'lavaojos', icon:'💧', label:'Lava ojos', w:35, h:35, color:'#06b6d4', h3d:30 },
+    { type:'punto_enc', icon:'🆘', label:'Punto enc.', w:80, h:80, color:'#22c55e', h3d:5 }
+  ],
+  'Mobiliario': [
+    { type:'escritorio', icon:'🪑', label:'Escritorio', w:120, h:60, color:'#a16207', h3d:50 },
+    { type:'silla', icon:'💺', label:'Silla', w:40, h:40, color:'#475569', h3d:30 },
+    { type:'mesa', icon:'🍽', label:'Mesa', w:100, h:80, color:'#a16207', h3d:50 },
+    { type:'estante', icon:'📚', label:'Estante', w:200, h:50, color:'#92400e', h3d:100 },
+    { type:'mueble_colg', icon:'🗄', label:'Mueble colg.', w:120, h:30, color:'#78350f', h3d:80 },
+    { type:'vitrina', icon:'🪟', label:'Vitrina', w:100, h:50, color:'#0ea5e9', h3d:60 },
+    { type:'mostrador', icon:'🏪', label:'Mostrador', w:180, h:60, color:'#a16207', h3d:60 },
+    { type:'archivador', icon:'🗃', label:'Archivador', w:60, h:50, color:'#475569', h3d:60 }
+  ],
+  'Bodega': [
+    { type:'rack', icon:'🧱', label:'Rack', w:220, h:90, color:'#64748b', h3d:120 },
+    { type:'caja', icon:'📦', label:'Caja', w:50, h:50, color:'#b45309', h3d:30 },
+    { type:'pallet', icon:'🪵', label:'Pallet', w:100, h:100, color:'#a16207', h3d:15 },
+    { type:'peligrosa', icon:'☣', label:'Mat. peligrosa', w:80, h:80, color:'#dc2626', h3d:50 },
+    { type:'tuberia', icon:'🔧', label:'Tubería', w:200, h:20, color:'#0891b2', h3d:40 },
+    { type:'herramienta', icon:'🔨', label:'Herramienta', w:40, h:40, color:'#475569', h3d:10 },
+    { type:'contenedor', icon:'🗑', label:'Contenedor', w:80, h:60, color:'#334155', h3d:50 }
+  ],
+  'Instalaciones': [
+    { type:'bano', icon:'🚻', label:'Baño', w:120, h:100, color:'#3b82f6', h3d:100 },
+    { type:'escalera', icon:'🪜', label:'Escalera', w:120, h:70, color:'#64748b', h3d:80 },
+    { type:'ascensor', icon:'🛗', label:'Ascensor', w:100, h:100, color:'#64748b', h3d:120 },
+    { type:'puerta', icon:'🚪', label:'Puerta', w:90, h:20, color:'#d97706', h3d:40 },
+    { type:'ventana', icon:'🪟', label:'Ventana', w:80, h:15, color:'#0ea5e9', h3d:30 },
+    { type:'lampara', icon:'💡', label:'Lámpara', w:30, h:30, color:'#fbbf24', h3d:20 },
+    { type:'letrero', icon:'🪧', label:'Letrero', w:80, h:30, color:'#f59e0b', h3d:20 },
+    { type:'colgante', icon:'🎏', label:'Colgante', w:60, h:30, color:'#f59e0b', h3d:20 }
+  ],
+  'Ventas': [
+    { type:'sala_venta', icon:'🏬', label:'Sala venta', w:300, h:200, color:'#10b981', h3d:5 },
+    { type:'exposicion', icon:'🖼', label:'Exposición', w:200, h:150, color:'#10b981', h3d:5 },
+    { type:'caja_reg', icon:'💰', label:'Caja reg.', w:80, h:40, color:'#16a34a', h3d:40 },
+    { type:'computador', icon:'💻', label:'Computador', w:40, h:30, color:'#475569', h3d:30 }
+  ],
+  'Estructura': [
+    { type:'pilar', icon:'⬛', label:'Pilar', w:30, h:30, color:'#334155', h3d:150 },
+    { type:'muro', icon:'▬', label:'Muro', w:200, h:15, color:'#334155', h3d:120 },
+    { type:'demarcacion', icon:'⚠', label:'Demarcación', w:200, h:15, color:'#fbbf24', h3d:2 },
+    { type:'zona', icon:'▭', label:'Zona', w:220, h:160, color:'#3b82f6', h3d:3, transparent:true },
+    { type:'texto', icon:'T', label:'Texto', w:160, h:40, color:'#0f172a', h3d:1, transparent:true }
+  ]
+};
+
+let FLOORS = {
+  sub:{ name:'Subterráneo', y: -600 }, p1: { name:'Piso 1', y: 0 },
+  p2: { name:'Piso 2', y: 600 }, p3: { name:'Piso 3', y: 1200 }
+};
+
+let state = {
+  floors: { sub:{elements:[]}, p1:{elements:[]}, p2:{elements:[]}, p3:{elements:[]} },
+  currentFloor: 'p1', sectors: { cols:3, rows:2 }, currentSector: null,
+  title: 'LAYOUT BODEGA', author: 'Lahional Ávila', nextId: 1, route: [], inventory: []
+};
+
+let zoom = 1, snap = true, selectedId = null, drag = null, routeMode = false;
+let rotation2D = 0, currentMode = '2d';
+let panX = 0, panY = 0, panState = null, panModeActive = false;
+
+const stage = document.getElementById('stage');
+const stageWrap = document.getElementById('stageWrap');
+const zoomLabel = document.getElementById('zoomLabel');
+const sectorsLayer = document.getElementById('sectorsLayer');
+const routesSvg = document.getElementById('routesSvg');
+const propsBody = document.getElementById('propsBody');
+const libraryList = document.getElementById('libraryList');
+const miniGrid = document.getElementById('miniGrid');
+const floorsBar = document.getElementById('floorsBar');
+const routeInfo = document.getElementById('routeInfo');
+
+const clamp = (v,a,b)=>Math.min(b,Math.max(a,v));
+const snapVal = (v,shift)=>(snap && !shift)?Math.round(v/10)*10:Math.round(v);
+const getEl = id => state.floors[state.currentFloor].elements.find(e=>e.id===id);
+const selected = () => getEl(selectedId);
+const curEls = () => state.floors[state.currentFloor].elements;
+
+async function sha256(str){
+  const buf = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({state, FLOORS})); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY); if(!raw) return false;
+    const d = JSON.parse(raw);
+    const saved = d.state || d;
+    if(!saved || !saved.floors) return false;
+    state = Object.assign(state, saved);
+    if(d.FLOORS) FLOORS = d.FLOORS;
+    document.getElementById('planTitle').value = state.title;
+    document.getElementById('planAuthor').value = state.author || 'Lahional Ávila';
+    document.getElementById('secCols').value = state.sectors.cols;
+    document.getElementById('secRows').value = state.sectors.rows;
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ============================================================
+   TRANSFORMACIÓN 2D (la base de todo)
+   ============================================================ */
+function applyTransform(){
+  const w = stageWrap.clientWidth;
+  const h = stageWrap.clientHeight;
+  const cx = w/2 + panX;
+  const cy = h/2 + panY;
+  stage.style.left = (cx - STAGE_W/2) + 'px';
+  stage.style.top = (cy - STAGE_H/2) + 'px';
+  stage.style.transform = `rotate(${rotation2D}deg) scale(${zoom})`;
+}
+
+function clientToStage(clientX, clientY){
+  const wr = stageWrap.getBoundingClientRect();
+  const cx = wr.left + wr.width/2 + panX;
+  const cy = wr.top + wr.height/2 + panY;
+  const dx = clientX - cx;
+  const dy = clientY - cy;
+  const rad = -rotation2D * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  const urx = dx * cos - dy * sin;
+  const ury = dx * sin + dy * cos;
+  return { x: urx / zoom + STAGE_W/2, y: ury / zoom + STAGE_H/2 };
+}
+
+function zoomToward(clientX, clientY, factor){
+  const p = clientToStage(clientX, clientY);
+  zoom = clamp(zoom * factor, 0.15, 4);
+  const relX = p.x - STAGE_W/2;
+  const relY = p.y - STAGE_H/2;
+  const rad = rotation2D * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  const offX = (relX * cos - relY * sin) * zoom;
+  const offY = (relX * sin + relY * cos) * zoom;
+  const wr = stageWrap.getBoundingClientRect();
+  const wrapCx = wr.left + wr.width/2;
+  const wrapCy = wr.top + wr.height/2;
+  panX = clientX - wrapCx - offX;
+  panY = clientY - wrapCy - offY;
+  applyTransform();
+  zoomLabel.textContent = Math.round(zoom*100) + '%';
+}
+
+function setZoom(z){
+  zoom = clamp(z, 0.15, 4);
+  applyTransform();
+  zoomLabel.textContent = Math.round(zoom*100) + '%';
+}
+
+function fitZoom(){
+  const pad = 60;
+  const w = stageWrap.clientWidth - pad;
+  const h = stageWrap.clientHeight - pad;
+  const rad = rotation2D * Math.PI / 180;
+  const cos = Math.abs(Math.cos(rad)), sin = Math.abs(Math.sin(rad));
+  zoom = clamp(Math.min(w/(STAGE_W*cos + STAGE_H*sin), h/(STAGE_W*sin + STAGE_H*cos)), 0.15, 4);
+  panX = 0; panY = 0;
+  applyTransform();
+  zoomLabel.textContent = Math.round(zoom*100) + '%';
+}
+
+function rotateLeft(){
+  rotation2D = (rotation2D - 90 + 360) % 360;
+  updateCompass();
+  fitZoom();
+  save();
+}
+function rotateRight(){
+  rotation2D = (rotation2D + 90) % 360;
+  updateCompass();
+  fitZoom();
+  save();
+}
+function updateCompass(){
+  const c = document.querySelector('.compass');
+  c.style.transform = `rotate(${rotation2D}deg)`;
+  c.querySelectorAll('.n, .s').forEach(el => {
+    el.style.transform = `rotate(${-rotation2D}deg)`;
+  });
+}
+
+function zoomToSector(r, c){
+  const {cols, rows} = state.sectors;
+  const cellW = STAGE_W / cols, cellH = STAGE_H / rows;
+  const cx = cellW * c + cellW / 2;
+  const cy = cellH * r + cellH / 2;
+  zoom = clamp(Math.min(
+    (stageWrap.clientWidth - 100) / cellW,
+    (stageWrap.clientHeight - 100) / cellH
+  ), 0.15, 4);
+  const relX = cx - STAGE_W/2;
+  const relY = cy - STAGE_H/2;
+  const rad = rotation2D * Math.PI / 180;
+  const cos = Math.cos(rad), sin = Math.sin(rad);
+  const offX = (relX * cos - relY * sin) * zoom;
+  const offY = (relX * sin + relY * cos) * zoom;
+  panX = -offX;
+  panY = -offY;
+  applyTransform();
+  zoomLabel.textContent = Math.round(zoom*100) + '%';
+  state.currentSector = {r, c};
+  renderSectors();
+  updateCajetin();
+}
+
+/* ============================================================
+   MODO 2D / 3D
+   ============================================================ */
+function updateModeUI(){
+  document.querySelectorAll('.mode-2d').forEach(el => el.classList.toggle('mode-2d-hidden', currentMode !== '2d'));
+  document.querySelectorAll('.mode-3d').forEach(el => el.classList.toggle('mode-3d-hidden', currentMode !== '3d'));
+  document.getElementById('panNav').classList.toggle('visible', currentMode === '2d');
+  document.getElementById('sectorNav').classList.toggle('visible', currentMode === '2d');
+}
+function setMode(mode){
+  currentMode = mode;
+  updateModeUI();
+  if(mode === '2d'){
+    document.getElementById('view2d').classList.remove('hidden');
+    document.getElementById('view3d').classList.add('hidden');
+    document.getElementById('tab2d').classList.add('primary');
+    document.getElementById('tab3d').classList.remove('primary');
+    setTimeout(() => applyTransform(), 50);
+  } else {
+    document.getElementById('view2d').classList.add('hidden');
+    document.getElementById('view3d').classList.remove('hidden');
+    document.getElementById('tab3d').classList.add('primary');
+    document.getElementById('tab2d').classList.remove('primary');
+    if(window.render3D) sync3D();
+  }
+}
+
+/* ============================================================
+   LIBRERÍA
+   ============================================================ */
+function renderLibrary(filter=''){
+  filter = filter.toLowerCase();
+  libraryList.innerHTML = '';
+  for(const [cat, items] of Object.entries(ACCESSORIES)){
+    const filtered = items.filter(it => it.label.toLowerCase().includes(filter) || it.type.includes(filter));
+    if(!filtered.length) continue;
+    const div = document.createElement('div');
+    div.className = 'category';
+    div.innerHTML = `<h4>${cat}</h4><div class="items"></div>`;
+    const grid = div.querySelector('.items');
+    filtered.forEach(it=>{
+      const b = document.createElement('div');
+      b.className = 'item';
+      b.innerHTML = `<div class="ico">${it.icon}</div><div>${it.label}</div>`;
+      b.onclick = ()=> addElement(it.type);
+      grid.appendChild(b);
+    });
+    libraryList.appendChild(div);
+  }
+}
+
+function findAcc(type){
+  for(const items of Object.values(ACCESSORIES))
+    for(const it of items) if(it.type===type) return it;
+  return { type, icon:'▭', label:'Elemento', w:80, h:80, color:'#94a3b8', h3d:40 };
+}
+
+function addElement(type){
+  const acc = findAcc(type);
+  const n = curEls().filter(e=>e.type===type).length + 1;
+  const els = curEls();
+  const el = {
+    id: state.nextId++, type, icon: acc.icon, color: acc.color, h3d: acc.h3d,
+    transparent: acc.transparent || false, opacity: acc.transparent ? 0.35 : 1,
+    x: 60 + ((els.length*24)%240), y: 60 + ((els.length*24)%240),
+    w: acc.w, h: acc.h, label: type==='texto' ? 'Texto' : acc.label + (n>1?' '+n:'')
+  };
+  els.push(el);
+  renderElement(el);
+  select(el.id);
+  updateSectorFromPoint(el.x+el.w/2, el.y+el.h/2);
+  save();
+}
+
+function removeElement(id){
+  const els = curEls();
+  const i = els.findIndex(e=>e.id===id);
+  if(i<0) return;
+  els.splice(i,1);
+  const d = stage.querySelector('.elem[data-id="'+id+'"]');
+  if(d) d.remove();
+  if(selectedId===id) select(null);
+  save();
+}
+
+function applyGeom(dom, el){
+  dom.style.left = el.x+'px';
+  dom.style.top = el.y+'px';
+  dom.style.width = el.w+'px';
+  dom.style.height = el.h+'px';
+  dom.style.background = (el.color || '#94a3b8') + '22';
+  dom.style.borderColor = el.color || '#334155';
+  dom.style.color = el.type==='texto' ? '#0f172a' : (el.color || '#0f172a');
+  dom.style.opacity = (el.opacity !== undefined) ? el.opacity : (el.transparent ? 0.5 : 1);
+}
+
+function renderElement(el){
+  const d = document.createElement('div');
+  d.className = 'elem';
+  d.dataset.id = el.id;
+  d.dataset.type = el.type;
+  d.innerHTML = `<span class="ico">${el.icon}</span><span class="lbl"></span>` +
+    `<button class="del" title="Eliminar">×</button><div class="handle" title="Redimensionar"></div>`;
+  d.querySelector('.lbl').textContent = el.label;
+  applyGeom(d, el);
+  stage.appendChild(d);
+}
+
+function refreshElement(el){
+  const d = stage.querySelector('.elem[data-id="'+el.id+'"]');
+  if(!d) return;
+  applyGeom(d, el);
+  d.querySelector('.lbl').textContent = el.label;
+}
+
+function renderAll(){
+  stage.querySelectorAll('.elem').forEach(n=>n.remove());
+  curEls().forEach(renderElement);
+  renderSectors();
+  renderRoute();
+  select(selectedId);
+  updateCajetin();
+  updateInvSummary();
+  updateAnalysis();
+  renderSectorNav();
+}
+
+const ORIENT = [['Noroeste','Norte','Noreste'],['Oeste','Centro','Este'],['Suroeste','Sur','Sureste']];
+function sectorName(r,c){ return String.fromCharCode(65+r) + (c+1); }
+function sectorOrient(r,c){
+  const rows = state.sectors.rows, cols = state.sectors.cols;
+  const ri = rows===1?1 : (rows===2? (r===0?0:2) : (r===0?0:(r===rows-1?2:1)));
+  const ci = cols===1?1 : (cols===2? (c===0?0:2) : (c===0?0:(c===cols-1?2:1)));
+  return ORIENT[ri][ci];
+}
+
+function renderSectors(){
+  sectorsLayer.innerHTML = '';
+  const {cols, rows} = state.sectors;
+  const cellW = STAGE_W / cols, cellH = STAGE_H / rows;
+  for(let i=1;i<cols;i++){
+    const l = document.createElement('div');
+    l.className='sector-line sector-v';
+    l.style.left = (cellW*i)+'px';
+    sectorsLayer.appendChild(l);
+  }
+  for(let i=1;i<rows;i++){
+    const l = document.createElement('div');
+    l.className='sector-line sector-h';
+    l.style.top = (cellH*i)+'px';
+    sectorsLayer.appendChild(l);
+  }
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const lbl = document.createElement('div');
+      lbl.className='sector-label';
+      lbl.style.left = (cellW*c + 28)+'px';
+      lbl.style.top = (cellH*r + 12)+'px';
+      lbl.textContent = sectorName(r,c);
+      sectorsLayer.appendChild(lbl);
+    }
+  }
+  if(state.currentSector){
+    const {r,c} = state.currentSector;
+    const tint = document.createElement('div');
+    tint.className='sector-tint';
+    tint.style.left = (cellW*c)+'px';
+    tint.style.top = (cellH*r)+'px';
+    tint.style.width = cellW+'px';
+    tint.style.height = cellH+'px';
+    sectorsLayer.appendChild(tint);
+  }
+  renderMinimap();
+}
+
+function renderMinimap(){
+  const {cols,rows} = state.sectors;
+  miniGrid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  miniGrid.innerHTML = '';
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const cell = document.createElement('div');
+      cell.className='mini-cell';
+      cell.textContent = sectorName(r,c);
+      if(state.currentSector && state.currentSector.r===r && state.currentSector.c===c)
+        cell.classList.add('active');
+      cell.onclick = ()=> zoomToSector(r,c);
+      miniGrid.appendChild(cell);
+    }
+  }
+}
+
+function renderSectorNav(){
+  const list = document.getElementById('sectorNavList');
+  list.innerHTML = '';
+  const {cols, rows} = state.sectors;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const b = document.createElement('button');
+      b.textContent = sectorName(r,c);
+      b.onclick = ()=> zoomToSector(r,c);
+      list.appendChild(b);
+    }
+  }
+}
+
+function updateSectorFromPoint(x,y){
+  const {cols,rows} = state.sectors;
+  const c = clamp(Math.floor(x / (STAGE_W/cols)), 0, cols-1);
+  const r = clamp(Math.floor(y / (STAGE_H/rows)), 0, rows-1);
+  state.currentSector = {r,c};
+  renderSectors();
+  updateCajetin();
+}
+
+function updateCajetin(){
+  document.getElementById('cjTitle').textContent = state.title || 'LAYOUT BODEGA';
+  document.getElementById('cjFloor').textContent = FLOORS[state.currentFloor]?.name || '—';
+  const sec = state.currentSector;
+  document.getElementById('cjSector').textContent = sec ?
+    sectorName(sec.r,sec.c) + ' · ' + sectorOrient(sec.r,sec.c) : '—';
+  document.getElementById('cjDate').textContent = new Date().toLocaleDateString('es-CL');
+  document.getElementById('cjAuthor').textContent = 'Planificado por ' + (state.author || OWNER);
+  document.getElementById('cjScale').textContent = '1:100 · ' + PIXELS_PER_METER + ' px/m';
+}
+
+function select(id){
+  selectedId = id;
+  stage.querySelectorAll('.elem').forEach(d =>
+    d.classList.toggle('selected', Number(d.dataset.id)===id));
+  renderProps();
+  if(id){
+    const el = getEl(id);
+    if(el) updateSectorFromPoint(el.x+el.w/2, el.y+el.h/2);
+  }
+}
+
+function renderProps(){
+  const el = selected();
+  if(!el){
+    propsBody.innerHTML = '<div class="empty">Selecciona un elemento</div>';
+    return;
+  }
+  const isZone = el.type === 'zona' || el.type === 'sala_venta' || el.type === 'exposicion' || el.transparent;
+  propsBody.innerHTML =
+    `<label>Nombre<input type="text" id="pLabel"></label>
+     <div class="row"><label>X<input type="number" id="pX"></label><label>Y<input type="number" id="pY"></label></div>
+     <div class="row"><label>Ancho (px)<input type="number" id="pW"></label><label>Alto (px)<input type="number" id="pH"></label></div>
+     <div class="row"><label>Ancho (m)<input type="number" id="pWm" step="0.1"></label><label>Alto (m)<input type="number" id="pHm" step="0.1"></label></div>
+     <label>Color<input type="color" id="pColor"></label>
+     <label>Opacidad<input type="number" id="pOpacity" min="0.05" max="1" step="0.05"></label>
+     ${isZone ? '<div style="font-size:9px;color:#7d90ad;margin-top:2px">Tip: opacidad baja para zonas privadas.</div>' : ''}
+     <button class="danger" id="pDel">Eliminar elemento</button>`;
+
+  const pL=document.getElementById('pLabel'), pX=document.getElementById('pX'),
+        pY=document.getElementById('pY'), pW=document.getElementById('pW'), pH=document.getElementById('pH'),
+        pWm=document.getElementById('pWm'), pHm=document.getElementById('pHm'),
+        pColor=document.getElementById('pColor'), pOpacity=document.getElementById('pOpacity');
+  pL.value=el.label; pX.value=Math.round(el.x); pY.value=Math.round(el.y);
+  pW.value=Math.round(el.w); pH.value=Math.round(el.h);
+  pWm.value = (el.w / PIXELS_PER_METER).toFixed(1);
+  pHm.value = (el.h / PIXELS_PER_METER).toFixed(1);
+  pColor.value = el.color || '#64748b';
+  pOpacity.value = (el.opacity !== undefined) ? el.opacity : 1;
+
+  const bindNum=(inp,prop)=>{
+    inp.addEventListener('input',()=>{
+      const cur=selected(); if(!cur) return;
+      let v=parseFloat(inp.value); if(isNaN(v)) return;
+      if(prop==='x') v=clamp(v,0,STAGE_W-cur.w);
+      if(prop==='y') v=clamp(v,0,STAGE_H-cur.h);
+      if(prop==='w') v=clamp(v,20,STAGE_W-cur.x);
+      if(prop==='h') v=clamp(v,20,STAGE_H-cur.y);
+      if(prop==='opacity') v=clamp(v,0.05,1);
+      cur[prop]=v;
+      refreshElement(cur);
+      save();
+    });
+  };
+  pL.addEventListener('input',()=>{
+    const cur=selected(); if(!cur) return;
+    cur.label = pL.value;
+    refreshElement(cur);
+    save();
+  });
+  bindNum(pX,'x'); bindNum(pY,'y'); bindNum(pW,'w'); bindNum(pH,'h'); bindNum(pOpacity,'opacity');
+  const bindMeters=(inp,prop)=>{
+    inp.addEventListener('input',()=>{
+      const cur=selected(); if(!cur) return;
+      let m=parseFloat(inp.value); if(isNaN(m)) return;
+      let px = Math.round(m * PIXELS_PER_METER);
+      if(prop==='w') px = clamp(px, 20, STAGE_W-cur.x);
+      if(prop==='h') px = clamp(px, 20, STAGE_H-cur.y);
+      cur[prop] = px;
+      refreshElement(cur);
+      save();
+    });
+  };
+  bindMeters(pWm,'w'); bindMeters(pHm,'h');
+  pColor.addEventListener('input',()=>{
+    const cur=selected(); if(!cur) return;
+    cur.color = pColor.value;
+    refreshElement(cur);
+    save();
+  });
+  document.getElementById('pDel').onclick = ()=> removeElement(el.id);
+}
+
+/* ============================================================
+   EVENTOS 2D - PAN, DRAG, RESIZE, ZOOM
+   ============================================================ */
+stageWrap.addEventListener('contextmenu', e => e.preventDefault());
+
+stageWrap.addEventListener('pointerdown', e => {
+  // Pan: click derecho, botón central, Alt+click, o modo ✋
+  const isPan = e.button === 2 || e.button === 1 || (e.button === 0 && (e.altKey || panModeActive));
+
+  if(isPan){
+    e.preventDefault();
+    panState = {
+      sx: e.clientX, sy: e.clientY,
+      px0: panX, py0: panY,
+      button: e.button,
+      moved: false
+    };
+    stageWrap.setPointerCapture?.(e.pointerId);
+    stageWrap.style.cursor = 'grabbing';
+    return;
+  }
+
+  if(currentMode !== '2d') return;
+
+  // Ruta manual
+  if(routeMode && e.button === 0){
+    const p = clientToStage(e.clientX, e.clientY);
+    state.route.push({x: clamp(p.x,0,STAGE_W), y: clamp(p.y,0,STAGE_H)});
+    renderRoute();
+    updateRouteInfo();
+    return;
+  }
+
+  // Elementos
+  const dom = e.target.closest('.elem');
+  if(!dom){
+    const p = clientToStage(e.clientX, e.clientY);
+    if(p.x >= 0 && p.x <= STAGE_W && p.y >= 0 && p.y <= STAGE_H){
+      updateSectorFromPoint(p.x, p.y);
+    }
+    select(null);
+    return;
+  }
+  if(e.target.closest('.del')){ removeElement(Number(dom.dataset.id)); return; }
+
+  const el = getEl(Number(dom.dataset.id)); if(!el) return;
+  select(el.id);
+
+  const isResize = !!e.target.closest('.handle');
+  const startP = clientToStage(e.clientX, e.clientY);
+  drag = {
+    mode: isResize ? 'resize' : 'move',
+    id: el.id,
+    startStageX: startP.x, startStageY: startP.y,
+    x0: el.x, y0: el.y, w0: el.w, h0: el.h, dom
+  };
+  dom.setPointerCapture?.(e.pointerId);
+  e.preventDefault();
+});
+
+window.addEventListener('pointermove', e => {
+  if(panState){
+    const dx = e.clientX - panState.sx;
+    const dy = e.clientY - panState.sy;
+    if(!panState.moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) panState.moved = true;
+    panX = panState.px0 + dx;
+    panY = panState.py0 + dy;
+    applyTransform();
+    return;
+  }
+  if(!drag) return;
+  const el = getEl(drag.id); if(!el) return;
+  const p = clientToStage(e.clientX, e.clientY);
+  const dx = p.x - drag.startStageX;
+  const dy = p.y - drag.startStageY;
+  const free = e.shiftKey;
+  if(drag.mode==='move'){
+    el.x = clamp(snapVal(drag.x0+dx, free), 0, STAGE_W-el.w);
+    el.y = clamp(snapVal(drag.y0+dy, free), 0, STAGE_H-el.h);
+  } else {
+    el.w = clamp(snapVal(drag.w0+dx, free), 20, STAGE_W-el.x);
+    el.h = clamp(snapVal(drag.h0+dy, free), 20, STAGE_H-el.y);
+  }
+  applyGeom(drag.dom, el);
+  renderProps();
+});
+
+window.addEventListener('pointerup', e => {
+  if(panState){
+    if(panState.button === 2 && !panState.moved){
+      deleteNearestWaypoint(e.clientX, e.clientY);
+    }
+    panState = null;
+    stageWrap.style.cursor = panModeActive ? 'grab' : 'default';
+    return;
+  }
+  if(!drag) return;
+  const el = getEl(drag.id);
+  if(el) updateSectorFromPoint(el.x+el.w/2, el.y+el.h/2);
+  drag = null;
+  save();
+});
+
+function deleteNearestWaypoint(clientX, clientY){
+  if(state.route.length === 0) return;
+  const p = clientToStage(clientX, clientY);
+  let nearest = -1, minDist = 30 / zoom;
+  state.route.forEach((pt, i) => {
+    const d = Math.sqrt((pt.x - p.x)**2 + (pt.y - p.y)**2);
+    if(d < minDist){ minDist = d; nearest = i; }
+  });
+  if(nearest >= 0){
+    state.route.splice(nearest, 1);
+    renderRoute();
+    updateRouteInfo();
+    save();
+    flash('Punto eliminado');
+  }
+}
+
+stageWrap.addEventListener('wheel', e => {
+  if(currentMode !== '2d') return;
+  e.preventDefault();
+  zoomToward(e.clientX, e.clientY, e.deltaY < 0 ? 1.15 : 0.87);
+}, { passive: false });
+
+// Pan nav buttons
+document.querySelectorAll('[data-pan]').forEach(b => {
+  b.onclick = () => {
+    const step = 150;
+    switch(b.dataset.pan){
+      case 'up': panY += step; applyTransform(); break;
+      case 'down': panY -= step; applyTransform(); break;
+      case 'left': panX += step; applyTransform(); break;
+      case 'right': panX -= step; applyTransform(); break;
+      case 'center': fitZoom(); break;
+    }
+  };
+});
+
+// Pan mode button
+document.getElementById('btnPanMode').onclick = () => {
+  panModeActive = !panModeActive;
+  document.getElementById('btnPanMode').classList.toggle('active', panModeActive);
+  stageWrap.classList.toggle('pan-mode', panModeActive);
+};
+
+window.addEventListener('keydown', e => {
+  const tag = (e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea') return;
+  if((e.ctrlKey || e.metaKey) && e.key === 'z'){ e.preventDefault(); undoRoutePoint(); return; }
+  const el = selected(); if(!el) return;
+  const step = e.shiftKey ? 10 : 1;
+  switch(e.key){
+    case 'Delete': case 'Backspace': e.preventDefault(); removeElement(el.id); break;
+    case 'ArrowLeft': el.x=clamp(el.x-step,0,STAGE_W-el.w); refreshElement(el); save(); e.preventDefault(); break;
+    case 'ArrowRight': el.x=clamp(el.x+step,0,STAGE_W-el.w); refreshElement(el); save(); e.preventDefault(); break;
+    case 'ArrowUp': el.y=clamp(el.y-step,0,STAGE_H-el.h); refreshElement(el); save(); e.preventDefault(); break;
+    case 'ArrowDown': el.y=clamp(el.y+step,0,STAGE_H-el.h); refreshElement(el); save(); e.preventDefault(); break;
+  }
+});
+
+/* ============================================================
+   RUTAS
+   ============================================================ */
+function renderRoute(){
+  routesSvg.innerHTML = '';
+  routesSvg.setAttribute('viewBox', `0 0 ${STAGE_W} ${STAGE_H}`);
+  if(state.route.length < 2){
+    state.route.forEach(p=>{
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 6);
+      c.setAttribute('class','wp'); routesSvg.appendChild(c);
+    });
+    return;
+  }
+  const d = state.route.map((p,i)=>(i===0?'M':'L')+p.x+' '+p.y).join(' ');
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d', d); path.setAttribute('class','path');
+  routesSvg.appendChild(path);
+  state.route.forEach(p=>{
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 5);
+    c.setAttribute('class','wp'); routesSvg.appendChild(c);
+  });
+}
+
+function routeDistanceMeters(){
+  let totalPx = 0;
+  for(let i=1;i<state.route.length;i++){
+    const a = state.route[i-1], b = state.route[i];
+    totalPx += Math.sqrt((b.x-a.x)**2 + (b.y-a.y)**2);
+  }
+  return totalPx / PIXELS_PER_METER;
+}
+
+function updateRouteInfo(){
+  if(state.route.length === 0){ routeInfo.classList.remove('open'); return; }
+  const distM = routeDistanceMeters();
+  document.getElementById('riDist').textContent = distM.toFixed(1) + ' m';
+  document.getElementById('riTime').textContent = fmtTime(distM / WALK_SPEED);
+  document.getElementById('riPts').textContent = state.route.length;
+  routeInfo.classList.add('open');
+}
+
+function fmtTime(seg){
+  seg = Math.round(seg);
+  const m = Math.floor(seg/60), s = seg % 60;
+  return m===0 ? s + ' s' : m + ' min ' + s + ' s';
+}
+
+function undoRoutePoint(){
+  if(state.route.length === 0) return;
+  state.route.pop();
+  renderRoute();
+  updateRouteInfo();
+  save();
+}
+
+function playRoute(){
+  if(state.route.length < 2){ alert('Agrega al menos 2 puntos'); return; }
+  const walker = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  walker.setAttribute('r', 8);
+  walker.setAttribute('class','walker');
+  routesSvg.appendChild(walker);
+  const pts = state.route;
+  let seg = 0, t = 0;
+  const speed = 0.018;
+  function step(){
+    if(seg >= pts.length-1){ walker.remove(); return; }
+    t += speed;
+    if(t >= 1){ t = 0; seg++; }
+    if(seg >= pts.length-1){ walker.remove(); return; }
+    const a2 = pts[seg], b2 = pts[seg+1];
+    walker.setAttribute('cx', a2.x + (b2.x-a2.x)*t);
+    walker.setAttribute('cy', a2.y + (b2.y-a2.y)*t);
+    requestAnimationFrame(step);
+  }
+  step();
+  if(window.animateRoute3D) window.animateRoute3D(state.route, state.currentFloor);
+}
+
+/* ============================================================
+   INVENTARIO / SIMULACIÓN / ANÁLISIS
+   ============================================================ */
+function updateInvSummary(){
+  const inv = state.inventory;
+  document.getElementById('invCount').textContent = inv.length;
+  document.getElementById('invUbic').textContent = inv.filter(p=>p.ubicacion).length;
+  document.getElementById('invSinUbic').textContent = inv.filter(p=>!p.ubicacion).length;
+  document.getElementById('invPeligro').textContent = inv.filter(p=>p.clase_peligro).length;
+}
+
+function addInventoryItem(){
+  const nombre = prompt('Nombre del producto:', 'Producto ' + (state.inventory.length+1));
+  if(!nombre) return;
+  const tipo = prompt('Tipo (rack/piso/contenedor):', 'rack');
+  if(!tipo) return;
+  const item = {
+    sku: 'SKU-' + String(state.inventory.length+1).padStart(3,'0'),
+    nombre, cantidad: parseInt(prompt('Cantidad:', '10')) || 10,
+    ubicacion: null, clase_peligro: null
+  };
+  if(tipo === 'piso'){
+    item.ubicacion = { tipo:'piso', zona_piso: prompt('Zona:', 'ZONA-A') };
+  } else if(tipo === 'contenedor'){
+    item.ubicacion = { tipo:'contenedor', contenedor_id: prompt('Contenedor:', 'C-01'),
+      rack_id: prompt('Rack:', 'RACK-01'),
+      fila: parseInt(prompt('Fila:','1'))||1, columna: parseInt(prompt('Col:','1'))||1, altura: parseInt(prompt('Alt:','1'))||1 };
+  } else {
+    item.ubicacion = { tipo:'rack', rack_id: prompt('Rack:', 'RACK-01'),
+      fila: parseInt(prompt('Fila:','1'))||1, columna: parseInt(prompt('Col:','1'))||1, altura: parseInt(prompt('Alt:','1'))||1 };
+  }
+  const peligro = prompt('¿Peligrosa? (ninguna / 2 / 3 / 4 / 5 / 6 / 8 / 9):', 'ninguna');
+  if(peligro && peligro.toLowerCase() !== 'ninguna') item.clase_peligro = peligro.replace('clase ','');
+  state.inventory.push(item);
+  updateInvSummary();
+  save();
+  flash('Producto agregado');
+}
+
+document.getElementById('csvInput').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const lines = reader.result.split(/\r?\n/).filter(l=>l.trim());
+      let added = 0;
+      for(let i=1;i<lines.length;i++){
+        const cols = lines[i].split(',');
+        if(cols.length < 2) continue;
+        const item = { sku: cols[0]?.trim() || 'SKU-'+i, nombre: cols[1]?.trim() || 'Producto '+i,
+          cantidad: parseInt(cols[2]) || 1, ubicacion: null, clase_peligro: null };
+        const tipo = (cols[3]||'rack').trim().toLowerCase();
+        if(tipo === 'piso') item.ubicacion = { tipo:'piso', zona_piso: cols[9]?.trim() || 'ZONA-A' };
+        else if(tipo === 'contenedor') item.ubicacion = { tipo:'contenedor', contenedor_id: cols[8]?.trim() || 'C-01',
+          rack_id: cols[4]?.trim() || 'RACK-01', fila: parseInt(cols[5])||1, columna: parseInt(cols[6])||1, altura: parseInt(cols[7])||1 };
+        else item.ubicacion = { tipo:'rack', rack_id: cols[4]?.trim() || 'RACK-01',
+          fila: parseInt(cols[5])||1, columna: parseInt(cols[6])||1, altura: parseInt(cols[7])||1 };
+        const pel = (cols[10]||'').trim().toLowerCase();
+        if(pel && pel !== 'ninguna' && pel !== '') item.clase_peligro = pel.replace('clase ','');
+        state.inventory.push(item); added++;
+      }
+      updateInvSummary(); save();
+      flash(added + ' productos cargados');
+    }catch(err){ alert('Error CSV'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+function distManhattan(a, b){ return Math.abs(a.x-b.x)/PIXELS_PER_METER + Math.abs(a.y-b.y)/PIXELS_PER_METER; }
+function coordProducto(p){
+  if(p.ubicacion.tipo === 'piso'){
+    const zonas = curEls().filter(e=>e.type==='zona');
+    if(zonas.length > 0) return { x: zonas[0].x + zonas[0].w/2, y: zonas[0].y + zonas[0].h/2 };
+    return { x: STAGE_W/2, y: STAGE_H/2 };
+  }
+  const racks = curEls().filter(e=>e.type==='rack' || e.type==='estante');
+  const target = racks.find(r => r.label.toLowerCase().includes(p.ubicacion.rack_id.toLowerCase()));
+  if(target) return { x: target.x + target.w/2, y: target.y + target.h/2 };
+  return { x: STAGE_W/2, y: STAGE_H/2 };
+}
+
+function simularPicking(){
+  const inv = state.inventory;
+  if(inv.length === 0){ alert('Agrega productos primero.'); return; }
+  const cajas = curEls().filter(e=>e.type==='caja_reg' || e.type==='mostrador');
+  let origen = { x: STAGE_W/2, y: STAGE_H/2 };
+  if(cajas.length > 0) origen = { x: cajas[0].x + cajas[0].w/2, y: cajas[0].y + cajas[0].h/2 };
+
+  const conUbic = inv.filter(p=>p.ubicacion);
+  const sinUbic = inv.filter(p=>!p.ubicacion);
+
+  let distCon = 0, posActual = { ...origen };
+  conUbic.forEach(p=>{
+    const coord = coordProducto(p);
+    distCon += distManhattan(posActual, coord);
+    posActual = coord;
+  });
+  distCon += distManhattan(posActual, origen);
+  const tiempoTotalCon = (distCon / WALK_SPEED) + (conUbic.length * PICK_TIME_PER_ITEM);
+
+  let distSin = 0, posActualSin = { ...origen };
+  const totalSinUbic = Math.max(sinUbic.length, conUbic.length);
+  for(let i=0; i<totalSinUbic; i++){
+    const racks = curEls().filter(e=>e.type==='rack' || e.type==='estante');
+    let dest;
+    if(racks.length > 0){
+      const r = racks[Math.floor(Math.random()*racks.length)];
+      dest = { x: r.x + r.w/2, y: r.y + r.h/2 };
+    } else dest = { x: STAGE_W/2, y: STAGE_H/2 };
+    const mid = { x: (posActualSin.x + dest.x)/2 + (Math.random()-0.5)*150,
+                  y: (posActualSin.y + dest.y)/2 + (Math.random()-0.5)*150 };
+    distSin += distManhattan(posActualSin, mid) + distManhattan(mid, dest);
+    posActualSin = dest;
+  }
+  distSin += distManhattan(posActualSin, origen);
+  const tiempoTotalSin = (distSin / WALK_SPEED) + (totalSinUbic * PICK_TIME_PER_ITEM * 1.5);
+
+  document.getElementById('simCon').textContent = fmtTime(tiempoTotalCon);
+  document.getElementById('simSin').textContent = fmtTime(tiempoTotalSin);
+  document.getElementById('simProd').textContent = inv.length;
+  const ahorro = tiempoTotalSin > 0 ? ((tiempoTotalSin - tiempoTotalCon) / tiempoTotalSin * 100) : 0;
+  document.getElementById('simAhorro').textContent = ahorro.toFixed(0) + '%';
+  document.getElementById('simPanel').classList.add('open');
+
+  state.route = [{ ...origen }];
+  conUbic.forEach(prod=>{ state.route.push(coordProducto(prod)); });
+  state.route.push({ ...origen });
+  renderRoute();
+  updateRouteInfo();
+  playRoute();
+}
+
+function updateAnalysis(){
+  const els = curEls();
+  let area = 0, vol = 0, maxH = 0;
+  els.forEach(el=>{
+    const wm = el.w / PIXELS_PER_METER, hm = el.h / PIXELS_PER_METER;
+    area += wm * hm;
+    vol += wm * hm * ((el.h3d || 40) / PIXELS_PER_METER);
+    if((el.h3d || 0) > maxH) maxH = el.h3d;
+  });
+  document.getElementById('anaCount').textContent = els.length;
+  document.getElementById('anaArea').textContent = area.toFixed(1) + ' m²';
+  document.getElementById('anaVol').textContent = vol.toFixed(1) + ' m³';
+  document.getElementById('anaH').textContent = (maxH / PIXELS_PER_METER).toFixed(1) + ' m';
+}
+
+/* ============================================================
+   NORMATIVA / IA / CONFIG / PISOS / DEMO
+   ============================================================ */
+function getSectorInfo(){
+  const {cols, rows} = state.sectors;
+  const cellW = STAGE_W / cols, cellH = STAGE_H / rows;
+  const superficie = (cellW / PIXELS_PER_METER) * (cellH / PIXELS_PER_METER);
+  const sec = state.currentSector;
+  let extintores = 0;
+  if(sec){
+    const x0 = cellW * sec.c, y0 = cellH * sec.r, x1 = x0 + cellW, y1 = y0 + cellH;
+    curEls().forEach(el=>{
+      if(el.type === 'extintor'){
+        const cx = el.x + el.w/2, cy = el.y + el.h/2;
+        if(cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1) extintores++;
+      }
+    });
+  }
+  return { superficie: Math.round(superficie), extintores,
+    peligrosos: state.inventory.filter(p=>p.clase_peligro),
+    anchoM: cellW/PIXELS_PER_METER, altoM: cellH/PIXELS_PER_METER, sec };
+}
+
+function validarExtintores(superficie, extintores){
+  let supMax = 150, distMax = 9, potencial = '4A';
+  if(superficie > 150 && superficie <= 225){ supMax = 225; distMax = 11; potencial = '6A'; }
+  else if(superficie > 225 && superficie <= 375){ supMax = 375; distMax = 13; potencial = '10A'; }
+  else if(superficie > 375){ supMax = 420; distMax = 15; potencial = '20A'; }
+  const minRequeridos = Math.ceil(superficie / supMax);
+  const cumple = extintores >= minRequeridos;
+  return { superficie, extintores, minRequeridos, distMax, potencial, cumple,
+    detalle: cumple
+      ? `✅ Cumple. Mínimo ${minRequeridos} extintor(es) ${potencial}. Distancia máx: ${distMax} m.`
+      : `⚠️ NO cumple. Necesitas ${minRequeridos} extintor(es) ${potencial}. Tienes ${extintores}. Distancia máx: ${distMax} m.` };
+}
+
+const PROMPTS_IA = {
+  extintores: (i,v) => `Experto D.S. 594. Sector ${i.superficie} m², ${i.extintores} extintor(es). Mín: ${v.minRequeridos} ${v.potencial}, dist máx ${v.distMax} m. ¿Cumple? Detalla faltantes.`,
+  peligrosa: (i) => `Experto D.S. 43/NCh 382. Peligrosos: ${i.peligrosos.map(p=>p.nombre+' (C'+p.clase_peligro+')').join(', ') || 'ninguno'}. Incompatibilidades, kit antiderrame, pretil, ventilación.`,
+  layout: (i) => `Ingeniero layouts. Sector ${i.superficie} m² (${i.anchoM.toFixed(1)}×${i.altoM.toFixed(1)} m). 5 recomendaciones para optimizar espacio y flujos.`,
+  picking: (i) => `Experto WMS. Sector ${i.superficie} m². Distribución A/B/C rotación para minimizar tiempo de picking.`,
+  evacuacion: (i) => `Experto D.S. 594. Sector ${i.superficie} m², ${i.extintores} extintores, ${i.peligrosos.length} peligrosos. Señales y rutas de evacuación.`,
+  general: (i,v) => `Consultor bodegas. Sector ${i.superficie} m². ${i.extintores} extintores, ${i.peligrosos.length} peligrosos. Diagnóstico + 3 acciones.`
+};
+function construirPrompt(tipo){
+  const info = getSectorInfo();
+  const val = validarExtintores(info.superficie, info.extintores);
+  return PROMPTS_IA[tipo] ? PROMPTS_IA[tipo](info, val) : PROMPTS_IA.general(info, val);
+}
+
+function abrirIA(){
+  document.getElementById('iaResp').style.display = 'none';
+  document.getElementById('modalIA').classList.add('open');
+}
+
+async function enviarIA(tipo){
+  const prompt = construirPrompt(tipo);
+  const respEl = document.getElementById('iaResp');
+  respEl.style.display = 'block';
+  if(!GROQ_API_KEY){
+    const info = getSectorInfo();
+    const val = validarExtintores(info.superficie, info.extintores);
+    respEl.textContent = '⚠️ Sin API key.\n\nClic en ⚙, pega tu key de console.groq.com.\n\nAnálisis local:\n' + val.detalle;
+    return;
+  }
+  respEl.textContent = 'Consultando IA...';
+  try{
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: 'Experto en normativa chilena de almacenamiento (D.S. 594, D.S. 43, NCh 382). Español, claro y práctico.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.4, max_tokens: 800
+      })
+    });
+    if(!res.ok){ const err = await res.text(); throw new Error('HTTP ' + res.status + ': ' + err); }
+    const data = await res.json();
+    respEl.textContent = data.choices?.[0]?.message?.content || 'Sin respuesta';
+  }catch(err){ respEl.textContent = '❌ Error: ' + err.message; }
+}
+
+function cfgCheckState(){
+  const status = document.getElementById('cfgStatus');
+  const pwdStored = localStorage.getItem(KEY_CFG_PWD);
+  const apiStored = localStorage.getItem(KEY_CFG_API);
+  if(!pwdStored){
+    status.className = 'status warn';
+    status.textContent = '🆕 Define contraseña para proteger API key.';
+    document.getElementById('cfgPwdLabel').textContent = 'Nueva contraseña';
+    document.getElementById('cfgPwdBtn').textContent = 'Crear';
+    document.getElementById('cfgPwdBtn').dataset.mode = 'create';
+  } else {
+    status.className = 'status ok';
+    status.textContent = apiStored ? '✅ API key guardada.' : '✅ Configura API key.';
+    document.getElementById('cfgPwdLabel').textContent = 'Contraseña';
+    document.getElementById('cfgPwdBtn').textContent = 'Desbloquear';
+    document.getElementById('cfgPwdBtn').dataset.mode = 'unlock';
+  }
+  document.getElementById('cfgPasswordSection').style.display = 'block';
+  document.getElementById('cfgApiSection').style.display = 'none';
+  document.getElementById('cfgPwdInput').value = '';
+}
+
+async function cfgHandlePwd(){
+  const btn = document.getElementById('cfgPwdBtn');
+  const pwd = document.getElementById('cfgPwdInput').value;
+  const status = document.getElementById('cfgStatus');
+  if(!pwd){ status.className = 'status bad'; status.textContent = 'Escribe contraseña'; return; }
+  if(btn.dataset.mode === 'create'){
+    localStorage.setItem(KEY_CFG_PWD, await sha256(pwd));
+    status.className = 'status ok'; status.textContent = '✅ Contraseña creada.';
+    document.getElementById('cfgPasswordSection').style.display = 'none';
+    document.getElementById('cfgApiSection').style.display = 'block';
+    document.getElementById('cfgApiKey').value = localStorage.getItem(KEY_CFG_API) || '';
+  } else {
+    if((await sha256(pwd)) === localStorage.getItem(KEY_CFG_PWD)){
+      status.className = 'status ok'; status.textContent = '✅ Desbloqueado.';
+      document.getElementById('cfgPasswordSection').style.display = 'none';
+      document.getElementById('cfgApiSection').style.display = 'block';
+      document.getElementById('cfgApiKey').value = localStorage.getItem(KEY_CFG_API) || '';
+    } else { status.className = 'status bad'; status.textContent = '❌ Incorrecta'; }
+  }
+}
+
+function cfgSaveApi(){
+  const k = document.getElementById('cfgApiKey').value.trim();
+  if(!k){ document.getElementById('cfgStatus').className = 'status bad'; document.getElementById('cfgStatus').textContent = 'Escribe API key'; return; }
+  localStorage.setItem(KEY_CFG_API, k);
+  GROQ_API_KEY = k;
+  document.getElementById('cfgStatus').className = 'status ok';
+  document.getElementById('cfgStatus').textContent = '✅ API key guardada.';
+  flash('API key guardada');
+}
+
+async function cfgChangePwd(){
+  const p1 = document.getElementById('cfgNewPwd').value;
+  const p2 = document.getElementById('cfgNewPwd2').value;
+  const status = document.getElementById('cfgStatus');
+  if(!p1 || p1 !== p2){ status.className = 'status bad'; status.textContent = '❌ No coinciden'; return; }
+  localStorage.setItem(KEY_CFG_PWD, await sha256(p1));
+  status.className = 'status ok'; status.textContent = '✅ Contraseña actualizada';
+  document.getElementById('cfgNewPwd').value = '';
+  document.getElementById('cfgNewPwd2').value = '';
+}
+
+function renderFloorsBar(){
+  floorsBar.innerHTML = '';
+  Object.entries(FLOORS).forEach(([key, f])=>{
+    const b = document.createElement('button');
+    b.textContent = f.name;
+    if(key===state.currentFloor) b.classList.add('active');
+    b.onclick = ()=> navigateFloor(key);
+    floorsBar.appendChild(b);
+  });
+  const mgr = document.createElement('button');
+  mgr.className = 'floor-mgr'; mgr.textContent = '⚙'; mgr.title = 'Gestionar pisos';
+  mgr.onclick = openFloorManager;
+  floorsBar.appendChild(mgr);
+}
+
+function navigateFloor(key){
+  state.currentFloor = key;
+  selectedId = null;
+  renderAll(); renderFloorsBar(); updateCajetin();
+  if(window.render3D) sync3D();
+  if(window.goToFloor3D) window.goToFloor3D(key, FLOORS[key].y);
+  save();
+}
+
+function openFloorManager(){
+  const list = document.getElementById('floorsList');
+  list.innerHTML = '';
+  Object.entries(FLOORS).forEach(([key, f])=>{
+    const row = document.createElement('div');
+    row.className = 'floor-manager-row';
+    row.innerHTML = `<span>${f.name} (Y=${f.y})</span>`;
+    const renameBtn = document.createElement('button');
+    renameBtn.textContent = '✏'; renameBtn.title = 'Renombrar';
+    renameBtn.onclick = ()=>{
+      const name = prompt('Nuevo nombre:', f.name);
+      if(name){ FLOORS[key].name = name; renderFloorsBar(); updateCajetin(); save(); openFloorManager(); }
+    };
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '🗑'; delBtn.className = 'danger'; delBtn.title = 'Eliminar';
+    delBtn.onclick = ()=>{
+      if(Object.keys(FLOORS).length <= 1){ alert('Debe haber al menos un piso'); return; }
+      if(!confirm(`¿Eliminar piso "${f.name}" y todos sus elementos?`)) return;
+      delete FLOORS[key]; delete state.floors[key];
+      if(state.currentFloor === key) state.currentFloor = Object.keys(FLOORS)[0];
+      renderFloorsBar(); renderAll(); save();
+      if(window.render3D) sync3D();
+      openFloorManager();
+    };
+    row.appendChild(renameBtn); row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+  document.getElementById('modalFloors').classList.add('open');
+}
+
+function addNewFloor(){
+  const name = prompt('Nombre del piso:', 'Piso ' + (Object.keys(FLOORS).length));
+  if(!name) return;
+  const ys = Object.values(FLOORS).map(f=>f.y);
+  const y = ys.length ? Math.max(...ys) + 600 : 0;
+  const key = 'p' + Date.now();
+  FLOORS[key] = { name, y };
+  state.floors[key] = { elements: [] };
+  renderFloorsBar(); save();
+  if(window.render3D) sync3D();
+  openFloorManager();
+}
+
+function sync3D(){
+  if(!window.render3D) return;
+  const floorsData = {};
+  Object.entries(state.floors).forEach(([k,f])=>{ floorsData[k] = { elements: f.elements }; });
+  const heights = {};
+  Object.entries(FLOORS).forEach(([k,f])=> heights[k] = f.y);
+  window.render3D({ floors: floorsData, floorHeights: heights, stageW: STAGE_W, stageH: STAGE_H, sectors: state.sectors });
+}
+
+function cargarDemo(){
+  if(!confirm('¿Cargar demo? Reemplaza todo el contenido.')) return;
+  state.floors = { sub:{elements:[]}, p1:{elements:[]}, p2:{elements:[]}, p3:{elements:[]} };
+  state.nextId = 1;
+  const demoP1 = [
+    {type:'rack',x:80,y:100,w:250,h:90,label:'RACK A1'},
+    {type:'rack',x:80,y:210,w:250,h:90,label:'RACK A2'},
+    {type:'rack',x:80,y:320,w:250,h:90,label:'RACK A3'},
+    {type:'rack',x:80,y:430,w:250,h:90,label:'RACK A4'},
+    {type:'rack',x:360,y:100,w:250,h:90,label:'RACK B1'},
+    {type:'rack',x:360,y:210,w:250,h:90,label:'RACK B2'},
+    {type:'rack',x:360,y:320,w:250,h:90,label:'RACK B3'},
+    {type:'rack',x:360,y:430,w:250,h:90,label:'RACK B4'},
+    {type:'sala_venta',x:680,y:100,w:400,h:300,label:'Sala de venta'},
+    {type:'vitrina',x:700,y:130,w:150,h:60,label:'Vitrina 1'},
+    {type:'vitrina',x:700,y:210,w:150,h:60,label:'Vitrina 2'},
+    {type:'exposicion',x:880,y:130,w:170,h:140,label:'Exposición'},
+    {type:'caja_reg',x:720,y:430,w:90,h:45,label:'Caja 1'},
+    {type:'caja_reg',x:820,y:430,w:90,h:45,label:'Caja 2'},
+    {type:'bano',x:990,y:440,w:110,h:100,label:'Baño'},
+    {type:'escalera',x:990,y:560,w:110,h:70,label:'Escalera'},
+    {type:'ascensor',x:870,y:560,w:100,h:70,label:'Ascensor'},
+    {type:'extintor',x:520,y:100,w:40,h:60,label:'Extintor 1'},
+    {type:'extintor',x:520,y:430,w:40,h:60,label:'Extintor 2'},
+    {type:'extintor',x:660,y:640,w:40,h:60,label:'Extintor 3'},
+    {type:'salida',x:600,y:740,w:120,h:20,label:'Salida emerg.'},
+    {type:'alarma',x:580,y:80,w:30,h:30,label:'Alarma'},
+    {type:'sensor',x:340,y:80,w:30,h:30,label:'Sensor'},
+    {type:'botiquin',x:680,y:640,w:40,h:40,label:'Botiquín'},
+    {type:'escritorio',x:660,y:520,w:130,h:70,label:'Oficina'},
+    {type:'silla',x:700,y:600,w:40,h:40,label:'Silla'},
+    {type:'computador',x:700,y:530,w:40,h:30,label:'PC'},
+    {type:'peligrosa',x:540,y:200,w:80,h:80,label:'Pinturas C3'},
+    {type:'zona',x:600,y:320,w:80,h:80,label:'Carga',color:'#fbbf24',opacity:0.3},
+    {type:'demarcacion',x:340,y:660,w:660,h:15,label:'Pasillo'},
+    {type:'muro',x:60,y:60,w:1000,h:10,label:'Pared N'}
+  ];
+  demoP1.forEach(d=>{
+    const acc = findAcc(d.type);
+    state.floors.p1.elements.push(Object.assign({
+      id: state.nextId++, icon: acc.icon, color: acc.color, h3d: acc.h3d,
+      transparent: acc.transparent || false, opacity: d.opacity || (acc.transparent ? 0.35 : 1)
+    }, d));
+  });
+  const demoP2 = [
+    {type:'rack',x:100,y:120,w:220,h:90,label:'RACK P2-A'},
+    {type:'rack',x:100,y:230,w:220,h:90,label:'RACK P2-B'},
+    {type:'estante',x:400,y:150,w:200,h:50,label:'Estante 1'},
+    {type:'estante',x:400,y:250,w:200,h:50,label:'Estante 2'},
+    {type:'escalera',x:900,y:120,w:120,h:70,label:'Escalera P2'},
+    {type:'bano',x:900,y:250,w:120,h:100,label:'Baño P2'},
+    {type:'extintor',x:600,y:100,w:40,h:60,label:'Extintor P2'},
+    {type:'zona',x:400,y:400,w:300,h:200,label:'Quincho',color:'#a16207',opacity:0.4}
+  ];
+  demoP2.forEach(d=>{
+    const acc = findAcc(d.type);
+    state.floors.p2.elements.push(Object.assign({
+      id: state.nextId++, icon: acc.icon, color: acc.color, h3d: acc.h3d,
+      transparent: acc.transparent || false, opacity: d.opacity || (acc.transparent ? 0.35 : 1)
+    }, d));
+  });
+  state.inventory = [
+    { sku:'FER-001', nombre:'Tornillos', cantidad:50, ubicacion:{tipo:'rack', rack_id:'RACK A1', fila:1, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-002', nombre:'Clavos', cantidad:80, ubicacion:{tipo:'rack', rack_id:'RACK A1', fila:2, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-003', nombre:'Martillo', cantidad:15, ubicacion:{tipo:'rack', rack_id:'RACK A2', fila:1, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-004', nombre:'Destornillador', cantidad:30, ubicacion:{tipo:'rack', rack_id:'RACK A2', fila:2, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-005', nombre:'Pintura aerosol', cantidad:24, ubicacion:{tipo:'rack', rack_id:'RACK B1', fila:1, columna:1, altura:1}, clase_peligro:'3' },
+    { sku:'FER-006', nombre:'Thinner', cantidad:12, ubicacion:{tipo:'rack', rack_id:'RACK B1', fila:2, columna:1, altura:1}, clase_peligro:'3' },
+    { sku:'FER-007', nombre:'Cinta aislante', cantidad:60, ubicacion:{tipo:'rack', rack_id:'RACK B2', fila:1, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-008', nombre:'Cable 2.5mm', cantidad:100, ubicacion:{tipo:'rack', rack_id:'RACK B2', fila:2, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-009', nombre:'Llave inglesa', cantidad:20, ubicacion:{tipo:'rack', rack_id:'RACK B3', fila:1, columna:1, altura:1}, clase_peligro:null },
+    { sku:'FER-010', nombre:'Cemento 25kg', cantidad:40, ubicacion:{tipo:'piso', zona_piso:'ZONA-CARGA'}, clase_peligro:null }
+  ];
+  state.route = [];
+  state.currentFloor = 'p1'; state.currentSector = null;
+  FLOORS = {
+    sub:{ name:'Subterráneo', y: -600 }, p1:{ name:'Piso 1', y: 0 },
+    p2:{ name:'Piso 2', y: 600 }, p3:{ name:'Piso 3', y: 1200 }
+  };
+  document.getElementById('planTitle').value = state.title;
+  document.getElementById('planAuthor').value = state.author;
+  document.getElementById('secCols').value = 3;
+  document.getElementById('secRows').value = 2;
+  renderFloorsBar(); renderAll();
+  updateInvSummary(); updateAnalysis();
+  setMode('2d');
+  setTimeout(fitZoom, 100);
+  updateCajetin(); save();
+  flash('Demo cargada');
+}
+
+function vaciarTodo(){
+  if(!confirm('¿Vaciar TODO (pisos, inventario, rutas)?')) return;
+  state.floors = {};
+  Object.keys(FLOORS).forEach(k => { state.floors[k] = { elements: [] }; });
+  state.inventory = []; state.route = []; state.nextId = 1;
+  state.currentSector = null; selectedId = null;
+  renderAll(); updateInvSummary(); updateAnalysis(); save();
+  if(window.render3D) sync3D();
+  flash('Todo vaciado');
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+function showPrintDialog(){ document.getElementById('modalPrint').classList.add('open'); }
+
+function executePrint(mode){
+  document.getElementById('modalPrint').classList.remove('open');
+  let img3d = null;
+  if(mode === '3d' || mode === 'both'){
+    const canvas3d = document.getElementById('canvas3d');
+    if(canvas3d && canvas3d.width > 0){
+      if(window.forceRenderOnce) window.forceRenderOnce();
+      try{ img3d = canvas3d.toDataURL('image/png'); }catch(err){}
+    }
+    if(!img3d){ alert('Abre el modo 3D primero.'); return; }
+  }
+  if(mode === '2d'){ window.print(); return; }
+  if(mode === '3d'){
+    const w = window.open('', '_blank');
+    w.document.write(`<html><head><title>Layout 3D</title>
+      <style>body{margin:20px;font-family:sans-serif}img{max-width:100%;border:1px solid #ccc}.footer{text-align:center;font-size:10px;color:#666;margin-top:12px}</style>
+      </head><body>
+      <h2>${state.title} - Vista 3D</h2>
+      <img src="${img3d}"/>
+      <div class="footer">© ${OWNER} · Todos los derechos reservados · ${new Date().toLocaleDateString('es-CL')}</div>
+      </body></html>`);
+    w.document.close();
+    setTimeout(()=>w.print(), 600);
+    return;
+  }
+  const styleContent = document.querySelector('style').textContent;
+  const stageClone = stage.cloneNode(true);
+  stageClone.querySelectorAll('.handle, .del').forEach(el=>el.remove());
+  stageClone.style.transform = 'none';
+  stageClone.style.left = '0';
+  stageClone.style.top = '0';
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Layout</title><style>${styleContent}
+    body{margin:0;padding:20px;background:#fff}
+    .page{margin-bottom:30px;page-break-after:always}
+    .page:last-child{page-break-after:auto}
+    .stage-clone{position:relative;width:100%;max-width:100%;height:auto;border:1px solid #ccc}
+    .stage-clone .elem .lbl{font-size:10px}
+    </style></head><body>
+    <div class="page">
+      <h2 style="font-size:16px;margin:0 0 10px">${state.title} - Vista 2D · ${FLOORS[state.currentFloor]?.name || ''}</h2>
+      <div class="stage-clone">${stageClone.innerHTML}</div>
+      <div style="text-align:center;font-size:10px;color:#666;margin-top:8px">© ${OWNER} · Todos los derechos reservados</div>
+    </div>
+    <div class="page">
+      <h2 style="font-size:16px;margin:0 0 10px">${state.title} - Vista 3D</h2>
+      <img src="${img3d}" style="max-width:100%;border:1px solid #ccc"/>
+      <div style="text-align:center;font-size:10px;color:#666;margin-top:8px">© ${OWNER} · Todos los derechos reservados</div>
+    </div>
+    </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(), 800);
+}
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+document.getElementById('zoomIn').onclick = ()=> {
+  const wr = stageWrap.getBoundingClientRect();
+  zoomToward(wr.left + wr.width/2, wr.top + wr.height/2, 1.15);
+};
+document.getElementById('zoomOut').onclick = ()=> {
+  const wr = stageWrap.getBoundingClientRect();
+  zoomToward(wr.left + wr.width/2, wr.top + wr.height/2, 0.87);
+};
+document.getElementById('zoomFit').onclick = fitZoom;
+document.getElementById('snapChk').onchange = e => snap = e.target.checked;
+document.getElementById('search').oninput = e => renderLibrary(e.target.value);
+document.getElementById('btnRotateLeft').onclick = rotateLeft;
+document.getElementById('btnRotateRight').onclick = rotateRight;
+
+document.getElementById('btnRoute').onclick = ()=>{
+  routeMode = !routeMode;
+  document.getElementById('btnRoute').classList.toggle('active', routeMode);
+};
+document.getElementById('btnPlay').onclick = playRoute;
+document.getElementById('btnUndoPoint').onclick = undoRoutePoint;
+document.getElementById('btnClearRoute').onclick = ()=>{ state.route = []; renderRoute(); updateRouteInfo(); save(); };
+document.getElementById('riUndo').onclick = undoRoutePoint;
+document.getElementById('riClear').onclick = ()=>{ state.route = []; renderRoute(); updateRouteInfo(); save(); };
+document.getElementById('btnSimular').onclick = simularPicking;
+document.getElementById('btnIA').onclick = abrirIA;
+document.querySelectorAll('.ia-buttons button').forEach(b=>{ b.onclick = ()=> enviarIA(b.dataset.ia); });
+
+document.getElementById('btnSave').onclick = ()=>{ save(); flash('Guardado ✓'); };
+document.getElementById('btnExport').onclick = ()=>{
+  const blob = new Blob([JSON.stringify({state, FLOORS}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'wms-bodega.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+document.getElementById('btnImport').onclick = ()=> document.getElementById('fileInput').click();
+document.getElementById('fileInput').onchange = e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const d = JSON.parse(reader.result);
+      const saved = d.state || d;
+      if(!saved || !saved.floors) throw 0;
+      state = Object.assign(state, saved);
+      if(d.FLOORS) FLOORS = d.FLOORS;
+      document.getElementById('planTitle').value = state.title;
+      document.getElementById('planAuthor').value = state.author || OWNER;
+      document.getElementById('secCols').value = state.sectors.cols;
+      document.getElementById('secRows').value = state.sectors.rows;
+      selectedId = null;
+      renderFloorsBar(); renderAll(); updateInvSummary(); updateAnalysis(); save();
+      flash('Importado ✓');
+      if(window.render3D) sync3D();
+    }catch(err){ alert('JSON no válido'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+};
+
+document.getElementById('btnPrint').onclick = showPrintDialog;
+document.getElementById('closeModalPrint').onclick = ()=> document.getElementById('modalPrint').classList.remove('open');
+document.getElementById('modalPrint').onclick = e=>{ if(e.target === document.getElementById('modalPrint')) document.getElementById('modalPrint').classList.remove('open'); };
+document.querySelectorAll('[data-print]').forEach(b=>{ b.onclick = ()=> executePrint(b.dataset.print); });
+
+document.getElementById('btnClear').onclick = vaciarTodo;
+document.getElementById('btnDemo').onclick = cargarDemo;
+
+document.getElementById('planTitle').oninput = e=>{ state.title = e.target.value; updateCajetin(); save(); };
+document.getElementById('planAuthor').oninput = e=>{ state.author = e.target.value; updateCajetin(); save(); };
+
+document.getElementById('secCols').onchange = e=>{
+  state.sectors.cols = clamp(parseInt(e.target.value)||1, 1, 6);
+  state.currentSector = null;
+  renderSectors(); renderSectorNav(); save();
+  if(window.render3D) sync3D();
+};
+document.getElementById('secRows').onchange = e=>{
+  state.sectors.rows = clamp(parseInt(e.target.value)||1, 1, 6);
+  state.currentSector = null;
+  renderSectors(); renderSectorNav(); save();
+  if(window.render3D) sync3D();
+};
+
+document.getElementById('btnAddInv').onclick = addInventoryItem;
+document.getElementById('btnLoadCSV').onclick = ()=> document.getElementById('csvInput').click();
+document.getElementById('btnAnalizar').onclick = updateAnalysis;
+
+document.getElementById('tab2d').onclick = ()=> setMode('2d');
+document.getElementById('tab3d').onclick = ()=> setMode('3d');
+document.getElementById('autoRotate').onchange = e => { if(window.toggleAutoRotate) toggleAutoRotate(e.target.checked); };
+document.getElementById('btnFPS').onclick = ()=> { if(window.toggleFPS) window.toggleFPS(state.currentFloor); };
+
+document.getElementById('btnToggleLeft').onclick = ()=>{
+  document.getElementById('libraryPanel').classList.toggle('hidden');
+  setTimeout(() => applyTransform(), 300);
+};
+document.getElementById('btnToggleRight').onclick = ()=>{
+  document.getElementById('propsPanel').classList.toggle('hidden');
+  setTimeout(() => applyTransform(), 300);
+};
+
+document.getElementById('closeModalFloors').onclick = ()=> document.getElementById('modalFloors').classList.remove('open');
+document.getElementById('closeFloorsBtn').onclick = ()=> document.getElementById('modalFloors').classList.remove('open');
+document.getElementById('modalFloors').onclick = e=>{ if(e.target === document.getElementById('modalFloors')) document.getElementById('modalFloors').classList.remove('open'); };
+document.getElementById('addFloorBtn').onclick = addNewFloor;
+
+document.getElementById('btnGear').onclick = ()=>{ cfgCheckState(); document.getElementById('modalConfig').classList.add('open'); };
+document.getElementById('closeModalCfg').onclick = ()=> document.getElementById('modalConfig').classList.remove('open');
+document.getElementById('cfgClose').onclick = ()=> document.getElementById('modalConfig').classList.remove('open');
+document.getElementById('cfgPwdBtn').onclick = cfgHandlePwd;
+document.getElementById('cfgSaveApi').onclick = cfgSaveApi;
+document.getElementById('cfgChangePwd').onclick = cfgChangePwd;
+document.getElementById('modalConfig').onclick = e=>{ if(e.target === document.getElementById('modalConfig')) document.getElementById('modalConfig').classList.remove('open'); };
+
+document.getElementById('closeModalIA').onclick = ()=> document.getElementById('modalIA').classList.remove('open');
+document.getElementById('cerrarIA').onclick = ()=> document.getElementById('modalIA').classList.remove('open');
+document.getElementById('btnImprimirIA').onclick = ()=>{
+  const resp = document.getElementById('iaResp').textContent;
+  if(!resp) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<pre style="font-family:sans-serif;white-space:pre-wrap;padding:20px">${resp}</pre><div style="text-align:center;font-size:10px;color:#666;padding:10px">© ${OWNER}</div>`);
+  w.document.close();
+  setTimeout(()=>w.print(), 400);
+};
+document.getElementById('modalIA').onclick = e=>{ if(e.target === document.getElementById('modalIA')) document.getElementById('modalIA').classList.remove('open'); };
+
+document.getElementById('btnGuide').onclick = ()=> document.getElementById('modalGuide').classList.add('open');
+document.getElementById('closeModalGuide').onclick = ()=> document.getElementById('modalGuide').classList.remove('open');
+document.getElementById('cerrarGuide').onclick = ()=> document.getElementById('modalGuide').classList.remove('open');
+document.querySelectorAll('.guide-nav button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('.guide-nav button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.guide-content').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelector(`.guide-content[data-guide="${b.dataset.guide}"]`).classList.add('active');
+  };
+});
+document.getElementById('modalGuide').onclick = e=>{ if(e.target === document.getElementById('modalGuide')) document.getElementById('modalGuide').classList.remove('open'); };
+document.getElementById('btnPrintGuide').onclick = ()=>{
+  const sections = document.querySelectorAll('.guide-content');
+  let html = `<h1 style="font-family:sans-serif">Guía · WMS Layout Bodega Pro</h1>
+    <p style="font-family:sans-serif;color:#666;font-size:11px">© ${OWNER} · Todos los derechos reservados</p>`;
+  sections.forEach(sec=>{ html += `<div style="page-break-inside:avoid;margin-bottom:24px;font-family:sans-serif">${sec.innerHTML}</div>`; });
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Guía</title>
+    <style>body{padding:30px;max-width:800px;margin:auto;line-height:1.6}
+    h4{color:#1e40af;margin-top:18px}code{background:#f0f0f0;padding:1px 5px;border-radius:3px}
+    .kbd-tip{background:#e0e7ff;padding:8px;border-left:3px solid #1e40af;margin:8px 0;font-size:11px}</style>
+    </head><body>${html}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(), 500);
+};
+
+function flash(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:22px;left:50%;transform:translateX(-50%);'+
+    'background:#1e3a8a;color:#fff;padding:9px 16px;border-radius:9px;'+
+    'font-size:12px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4)';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 1500);
+}
+
+window.addEventListener('resize', () => { applyTransform(); });
+
+function init(){
+  GROQ_API_KEY = localStorage.getItem(KEY_CFG_API) || '';
+  if(!load()){
+    cargarDemo();
+  } else {
+    renderLibrary(); renderFloorsBar(); renderAll();
+    updateInvSummary(); updateAnalysis();
+    setTimeout(() => { fitZoom(); }, 120);
+    updateCajetin();
+  }
+  updateModeUI();
+  renderSectorNav();
+  updateCompass();
+}
+init();
+</script>
+
+<!-- 3D -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+let scene, camera, renderer, controlsOrbit, controlsFPS, initialized=false, rootGroup=null;
+let W=1123, H=794, isFPS=false;
+let fpsVelocity = new THREE.Vector3();
+let moveForward=false, moveBackward=false;
+let currentFloorKey='p1', floorHeightsMap={};
+let routeMarker=null;
+const clock = new THREE.Clock();
+
+function init3D(canvas){
+  if(initialized) return;
+  initialized = true;
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0f1a);
+  scene.fog = new THREE.FogExp2(0x0a0f1a, 0.00012);
+  camera = new THREE.PerspectiveCamera(60, canvas.clientWidth/canvas.clientHeight, 1, 40000);
+  camera.position.set(1400, 1800, 1800);
+  renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+  const d1 = new THREE.DirectionalLight(0xffffff, 1.6); d1.position.set(1500, 3500, 1200); scene.add(d1);
+  const d2 = new THREE.DirectionalLight(0xa5b4fc, 0.6); d2.position.set(-1200, 2000, -800); scene.add(d2);
+  scene.add(new THREE.HemisphereLight(0x8fa3c0, 0x0a0f1a, 0.5));
+
+  controlsOrbit = new OrbitControls(camera, canvas);
+  controlsOrbit.enableDamping = true;
+  controlsOrbit.dampingFactor = 0.08;
+  controlsOrbit.target.set(0, 400, 0);
+  controlsOrbit.minDistance = 300;
+  controlsOrbit.maxDistance = 8000;
+
+  controlsFPS = new PointerLockControls(camera, canvas);
+  scene.add(controlsFPS.getObject());
+  controlsFPS.addEventListener('lock', ()=>{
+    isFPS = true; canvas.classList.add('fps-active');
+    document.getElementById('fpsHint').classList.add('open');
+  });
+  controlsFPS.addEventListener('unlock', ()=>{
+    isFPS = false; canvas.classList.remove('fps-active');
+    document.getElementById('fpsHint').classList.remove('open');
+  });
+  canvas.addEventListener('mousedown', e=>{
+    if(!isFPS) return;
+    if(e.button === 0) moveForward = true;
+    if(e.button === 2) moveBackward = true;
+  });
+  canvas.addEventListener('mouseup', e=>{
+    if(e.button === 0) moveForward = false;
+    if(e.button === 2) moveBackward = false;
+  });
+  canvas.addEventListener('contextmenu', e=> e.preventDefault());
+  window.addEventListener('blur', ()=>{ moveForward = false; moveBackward = false; });
+
+  rootGroup = new THREE.Group();
+  scene.add(rootGroup);
+  window.addEventListener('resize', ()=>{
+    if(!canvas.clientWidth) return;
+    camera.aspect = canvas.clientWidth/canvas.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  });
+  animate();
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const delta = clock.getDelta();
+  if(isFPS){
+    fpsVelocity.z -= fpsVelocity.z * 10 * delta;
+    const dirZ = Number(moveForward) - Number(moveBackward);
+    fpsVelocity.z -= dirZ * 600 * delta;
+    controlsFPS.moveForward(-fpsVelocity.z * delta);
+    camera.position.y = (floorHeightsMap[currentFloorKey] || 0) + 200;
+  } else {
+    controlsOrbit.update();
+  }
+  if(routeMarker && routeMarker.userData.animating){
+    const pts = routeMarker.userData.points;
+    const elapsed = (performance.now() - routeMarker.userData.start) / 1000;
+    const totalLen = routeMarker.userData.totalLen;
+    const progress = (elapsed * 200) % totalLen;
+    let acc = 0;
+    for(let i=1;i<pts.length;i++){
+      const a = pts[i-1], b = pts[i];
+      const segLen = a.distanceTo(b);
+      if(acc + segLen >= progress){
+        routeMarker.position.lerpVectors(a, b, (progress-acc)/segLen);
+        break;
+      }
+      acc += segLen;
+    }
+  }
+  if(renderer && scene && camera) renderer.render(scene, camera);
+}
+
+function clearRoot(){
+  if(!rootGroup) return;
+  while(rootGroup.children.length){
+    const c = rootGroup.children.pop();
+    if(c.geometry) c.geometry.dispose();
+    if(c.material){
+      if(Array.isArray(c.material)) c.material.forEach(m=>m.dispose());
+      else c.material.dispose();
+    }
+    rootGroup.remove(c);
+  }
+  routeMarker = null;
+}
+
+function makeGlassMaterial(color, opacity=0.85){
+  return new THREE.MeshPhysicalMaterial({
+    color, metalness: 0.05, roughness: 0.15, transmission: 0.6,
+    thickness: 0.4, ior: 1.45, clearcoat: 0.4, clearcoatRoughness: 0.1,
+    transparent: true, opacity, side: THREE.FrontSide
+  });
+}
+
+window.render3D = function(data){
+  const canvas = document.getElementById('canvas3d');
+  if(!initialized) init3D(canvas);
+  W = data.stageW || 1123; H = data.stageH || 794;
+  floorHeightsMap = data.floorHeights || {};
+  clearRoot();
+  const {floors, floorHeights, sectors} = data;
+  const ys = Object.values(floorHeights);
+  const midY = ys.length ? (Math.min(...ys) + Math.max(...ys))/2 : 400;
+
+  Object.entries(floors).forEach(([fk, fd])=>{
+    const baseY = floorHeights[fk] ?? 0;
+    const slab = new THREE.Mesh(
+      new THREE.PlaneGeometry(W, H),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x1e293b, transparent:true, opacity:0.35, side: THREE.DoubleSide,
+        metalness: 0.2, roughness: 0.2, transmission: 0.3, thickness: 0.2
+      })
+    );
+    slab.rotation.x = -Math.PI/2;
+    slab.position.set(0, baseY, 0);
+    rootGroup.add(slab);
+
+    const grid = new THREE.GridHelper(W, Math.round(W/60), 0x475569, 0x1e293b);
+    grid.position.set(0, baseY+0.5, 0);
+    grid.scale.set(1, 1, H/W);
+    rootGroup.add(grid);
+
+    if(sectors && sectors.cols > 1){
+      const cellW = W / sectors.cols;
+      for(let i=1;i<sectors.cols;i++){
+        const geo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-W/2 + cellW*i, baseY+1, -H/2),
+          new THREE.Vector3(-W/2 + cellW*i, baseY+1, H/2)
+        ]);
+        rootGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x64748b, transparent:true, opacity:0.3 })));
+      }
+    }
+    if(sectors && sectors.rows > 1){
+      const cellH = H / sectors.rows;
+      for(let i=1;i<sectors.rows;i++){
+        const geo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(-W/2, baseY+1, -H/2 + cellH*i),
+          new THREE.Vector3(W/2, baseY+1, -H/2 + cellH*i)
+        ]);
+        rootGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color:0x64748b, transparent:true, opacity:0.3 })));
+      }
+    }
+
+    fd.elements.forEach(el=>{
+      const hgt = el.h3d || 40;
+      const geo = new THREE.BoxGeometry(el.w, hgt, el.h);
+      const col = new THREE.Color(el.color || '#64748b');
+      const op = (el.opacity !== undefined && el.opacity !== 1) ? el.opacity : (el.transparent ? 0.35 : 1);
+      let mat;
+      if(op < 1 || el.type === 'vitrina' || el.type === 'rack' || el.type === 'estante'){
+        mat = makeGlassMaterial(col, Math.max(op, 0.75));
+      } else {
+        mat = new THREE.MeshStandardMaterial({ color: col, roughness:0.55, metalness:0.15 });
+      }
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(el.x + el.w/2 - W/2, baseY + hgt/2, el.y + el.h/2 - H/2);
+      rootGroup.add(mesh);
+      const edges = new THREE.LineSegments(
+        new THREE.EdgesGeometry(geo),
+        new THREE.LineBasicMaterial({ color: 0x0f172a, transparent:true, opacity:0.35 })
+      );
+      edges.position.copy(mesh.position);
+      rootGroup.add(edges);
+    });
+  });
+  controlsOrbit.target.set(0, midY, 0);
+  controlsOrbit.update();
+};
+
+window.setView = function(view){
+  if(!camera || !controlsOrbit) return;
+  if(view==='top') camera.position.set(0.01, 3500, 0);
+  else if(view==='front') camera.position.set(0, 600, 2800);
+  else if(view==='side') camera.position.set(2800, 600, 0);
+  else camera.position.set(1600, 2000, 2000);
+  controlsOrbit.target.set(0, 400, 0);
+  controlsOrbit.update();
+};
+
+window.toggleAutoRotate = function(on){ if(controlsOrbit) controlsOrbit.autoRotate = !!on; };
+
+window.toggleFPS = function(floorKey){
+  currentFloorKey = floorKey;
+  if(!isFPS){
+    camera.position.set(0, (floorHeightsMap[floorKey] || 0) + 200, 0);
+    controlsFPS.lock();
+  } else controlsFPS.unlock();
+};
+
+window.goToFloor3D = function(floorKey, floorY){
+  currentFloorKey = floorKey;
+  if(isFPS) camera.position.set(0, floorY + 200, 0);
+  else if(camera && controlsOrbit){
+    const targetY = floorY + 400;
+    camera.position.set(1400, targetY + 800, 1400);
+    controlsOrbit.target.set(0, targetY, 0);
+    controlsOrbit.update();
+  }
+};
+
+window.setFPSFloor = function(floorKey){
+  currentFloorKey = floorKey;
+  if(isFPS) camera.position.y = (floorHeightsMap[floorKey] || 0) + 200;
+};
+
+window.animateRoute3D = function(route, floorKey){
+  if(!rootGroup) return;
+  if(routeMarker){ rootGroup.remove(routeMarker); routeMarker = null; }
+  if(route.length < 2) return;
+  const baseY = (floorHeightsMap[floorKey] || 0) + 30;
+  const pts = route.map(p => new THREE.Vector3(p.x - W/2, baseY, p.y - H/2));
+  let totalLen = 0;
+  for(let i=1;i<pts.length;i++) totalLen += pts[i-1].distanceTo(pts[i]);
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.8,
+    metalness: 0.3, roughness: 0.2, transmission: 0.2
+  });
+  routeMarker = new THREE.Mesh(new THREE.SphereGeometry(14, 20, 20), mat);
+  routeMarker.position.copy(pts[0]);
+  routeMarker.userData = { points: pts, animating: true, start: performance.now(), totalLen };
+  rootGroup.add(routeMarker);
+};
+
+window.forceRenderOnce = function(){ if(renderer && scene && camera) renderer.render(scene, camera); };
+
+setTimeout(()=>{
+  if(!window.render3D){
+    document.getElementById('view3d').innerHTML =
+      '<div style="padding:60px;text-align:center;color:#8fa3c0;font-size:14px">⚠ Vista 3D no disponible.</div>';
+  }
+}, 6000);
+</script>
+</body>
+</html>
